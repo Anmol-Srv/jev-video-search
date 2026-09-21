@@ -1,0 +1,22 @@
+# Netflix-style compositional queries: each specifies a RELATIONSHIP between
+# things, not just a bag of concepts. That relationship is what embeddings drop.
+a person cooking food outdoors
+someone playing a musical instrument while sitting down
+a dog running on a beach
+a car driving through snow
+a person talking directly to the camera in a kitchen
+food being cut with a knife on a cutting board
+a crowd watching a performance on a stage
+someone riding a motorcycle at night
+a child playing with a toy on the floor
+a person applying makeup in front of a mirror
+a video game character shooting inside a building
+someone typing on a computer in an office
+a small animal being held in someone's hands
+a basketball being thrown into a hoop
+a man in a suit speaking at a news desk
+a person swimming in open water
+cartoon characters talking to each other
+someone pouring liquid into a glass
+a plane flying above the clouds
+two people dancing together indoors
