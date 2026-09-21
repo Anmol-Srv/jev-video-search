@@ -121,7 +121,11 @@ button.go:disabled { background: var(--surface-2); color: var(--dim); cursor: pr
 @keyframes pulse { 50% { background: var(--surface-2); } }
 
 /* ---------- stat cards ---------- */
-.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 34px; }
+.cards { display: grid; grid-template-columns: 1fr 1fr 2fr; gap: 10px; margin-top: 34px; }
+.card .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.card .lbl { margin-top: 6px; font: 400 0.6875rem/1 var(--mono); color: var(--dim); }
+.card .pair > .jev .big { color: var(--accent); }
+.card .pair > .jev .cbar i { background: var(--accent); }
 .card { padding: 14px 16px 13px; background: var(--surface);
         border: 1px solid var(--line-soft); border-radius: 10px; }
 .card h3 { margin: 0 0 9px; font: 500 0.6875rem/1 var(--mono);
@@ -178,7 +182,8 @@ details .sub { margin: 0 0 6px; font-size: 0.8125rem; color: var(--dim); }
 }
 @media (max-width: 860px) {
   .cols, #ruledList { grid-template-columns: 1fr; gap: 34px; }
-  .cards { grid-template-columns: repeat(2, 1fr); }
+  .cards { grid-template-columns: 1fr 1fr; }
+  .cards .card:last-child { grid-column: 1 / -1; }
 }
 @media (max-width: 560px) { button.go { flex: 1; } }
 </style>
@@ -260,16 +265,18 @@ function shell(){
       <div class="cbar"><i id="bSpE"></i></div></div>
     <div class="card hi"><h3>With Jev</h3><div class="big" id="kSpJ">0 ms</div>
       <div class="cbar"><i id="bSpJ"></i></div></div>
-    <div class="card"><h3>Clips returned</h3><div class="big" id="kCnE">—</div>
-      <div class="cbar"><i id="bCnE"></i></div></div>
-    <div class="card hi"><h3>Actually match</h3><div class="big" id="kCnJ">0</div>
-      <div class="cbar"><i id="bCnJ"></i></div></div>
+    <div class="card"><h3>Clips returned</h3>
+      <div class="pair">
+        <div><div class="big" id="kCnE">—</div><div class="lbl">text search</div>
+          <div class="cbar"><i id="bCnE"></i></div></div>
+        <div class="jev"><div class="big" id="kCnJ">0</div>
+          <div class="lbl">with jev</div>
+          <div class="cbar"><i id="bCnJ"></i></div></div>
+      </div></div>
   </div>
   <p class="takeaway" id="tk">Ranking 1,000 clips by wording, then reading each one…</p>
 
-  <div class="sec"><h2>Side by side</h2>
-    <p class="sub" id="sbsSub">Each clip Jev clears appears on the left. The right column
-    shows what plain text search would have put in that same slot.</p>
+  <div class="sec">
     <div class="cols">
       <div class="col"><div class="colH live" id="hL"><span class="dot"></span>With Jev
         <i id="hLn">reading…</i></div><ol id="jevCol"></ol>
@@ -363,18 +370,14 @@ function finish(d){
   }
   document.getElementById('hL').classList.remove('live');
   document.getElementById('hLn').textContent=n?`${n} match${n===1?'':'es'}`:'nothing matched';
-  document.getElementById('sbsSub').textContent=n
-    ? `Jev cleared ${n} of ${total} clips. The right column is what wording alone would have ranked in those same ${n} slots.`
-    : `Jev cleared none of the ${total} clips. Text search would still have handed over all ${total}.`;
-
   const e=d.embedMs||1, j=d.checkMs, max=Math.max(e,j);
   document.getElementById('bSpE').style.width=`${Math.max(1.5,100*e/max)}%`;
   document.getElementById('bSpJ').style.width='100%';
   document.getElementById('kSpE').textContent=ms(e);
   document.getElementById('kSpJ').textContent=ms(j);
   document.getElementById('bCnE').style.width='100%';
-  document.getElementById('kCnE').innerHTML=`${total} <em>always</em>`;
-  document.getElementById('kCnJ').innerHTML=`${n}<em>of ${total}</em>`;
+  document.getElementById('kCnE').textContent=total;
+  document.getElementById('kCnJ').textContent=n;
   document.getElementById('tk').innerHTML=n
     ? `Reading the clips cost <b>${Math.round(j/e)}×</b> the plain search and ruled out
        <b>${total-n}</b> of ${total} — but the first match was on screen in about a second.
@@ -415,7 +418,7 @@ function search(q){
     Object.assign(S,{clips:d.clips.map(c=>({...c,score:undefined})),floor:d.floor,
                      embedMs:d.embedMs,corpus:d.corpus});
     document.getElementById('kSpE').textContent=ms(d.embedMs);
-    document.getElementById('kCnE').innerHTML=`${d.clips.length} <em>always</em>`;
+    document.getElementById('kCnE').textContent=d.clips.length;
     document.getElementById('bCnE').style.width='100%';
     document.getElementById('hRn').textContent=`ready in ${d.embedMs} ms`;
     showStatus(`Reading <b>0</b> of ${d.clips.length} clips`,0);
