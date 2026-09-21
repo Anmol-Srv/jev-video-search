@@ -189,6 +189,95 @@ ol { list-style: none; margin: 0; padding: 0; }
 }
 .more:hover { color: var(--muted); }
 
+/* ---------- prompts to try ---------- */
+.tries { margin: 30px 0; }
+.tryGroup { margin-bottom: 22px; }
+.tryGroup h3 {
+  margin: 0 0 4px; font: 500 0.6875rem/1 var(--mono);
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+}
+.tryGroup p { margin: 0 0 10px; font-size: 0.8125rem; color: var(--dim); max-width: 72ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  padding: 8px 12px; border-radius: 999px; cursor: pointer;
+  background: var(--surface); border: 1px solid var(--line); color: var(--muted);
+  font: 400 0.8125rem var(--sans); text-align: left;
+  transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease),
+              background var(--fast) var(--ease);
+}
+.chip:hover { border-color: var(--accent-soft); color: var(--ink); background: var(--surface-2); }
+.chip .n { font: 500 0.6875rem var(--mono); color: var(--dim); margin-left: 6px; }
+.chip:hover .n { color: var(--muted); }
+
+/* ---------- view toggle ---------- */
+.views { display: flex; gap: 2px; padding: 2px; background: var(--surface);
+         border: 1px solid var(--line); border-radius: 8px; }
+.views button {
+  padding: 9px 14px; border: 0; border-radius: 6px; background: none; color: var(--muted);
+  font-size: 0.8125rem; font-weight: 500; cursor: pointer;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.views button:hover:not([aria-pressed=true]):not(:disabled) { color: var(--ink); }
+.views button[aria-pressed=true] { background: var(--surface-2); color: var(--ink); }
+.views button:disabled { color: var(--dim); cursor: not-allowed; }
+
+/* ---------- compare view ---------- */
+.cmp { margin-top: 34px; }
+.cmpBlock { margin-bottom: 34px; }
+.cmpH {
+  display: flex; align-items: baseline; gap: 14px; margin: 0 0 14px;
+  font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+}
+.cmpH span { letter-spacing: 0; text-transform: none; color: var(--dim); font-size: 0.75rem; }
+.cmpH::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+
+.metric { display: grid; grid-template-columns: 120px 1fr auto; gap: 14px;
+          align-items: center; padding: 7px 0; }
+.metric .who { font: 500 0.8125rem var(--mono); color: var(--muted); }
+.metric .track { height: 10px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+.metric .fill { height: 100%; background: var(--surface-2); border-radius: 3px;
+                transition: width var(--base) var(--ease); }
+.metric.jev .fill { background: var(--accent); }
+.metric .val { font: 500 0.8125rem var(--mono); font-variant-numeric: tabular-nums;
+               color: var(--ink); white-space: nowrap; }
+.metric .val em { font-style: normal; color: var(--dim); }
+.cmpNote { margin: 10px 0 0; font-size: 0.8125rem; color: var(--dim); max-width: 70ch;
+           text-wrap: pretty; }
+
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+.colH { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px;
+        padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.colH b { font: 600 0.8125rem var(--sans); color: var(--ink); }
+.colH i { font: 400 0.75rem/1 var(--mono); font-style: normal; color: var(--dim); }
+
+.crow { display: grid; grid-template-columns: 52px 76px 1fr; gap: 10px;
+        align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
+.crow:last-child { border-bottom: 0; }
+.crow .cs { font: 500 1rem/1 var(--mono); font-variant-numeric: tabular-nums; }
+.crow.keep .cs { color: var(--accent); }
+.crow.cut .cs { color: var(--muted); }
+.crow .cthumb { width: 76px; aspect-ratio: 16/10; border-radius: 4px; overflow: hidden;
+                background: var(--surface); border: 1px solid var(--line-soft);
+                padding: 0; cursor: pointer; display: block; }
+.crow .cthumb video { width: 100%; height: 100%; object-fit: cover; display: block; background:#000; }
+.crow.cut .cthumb video { filter: saturate(0.25) brightness(0.72); }
+.crow .cmeta { min-width: 0; }
+.crow .cvid { font: 500 0.75rem/1.3 var(--mono); color: var(--muted);
+              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crow .cx { margin-top: 4px; font: 400 0.6875rem/1 var(--mono); color: var(--dim); }
+.crow .cx b { color: var(--muted); font-weight: 500; }
+.verdict { display: inline-block; margin-top: 4px; padding: 2px 5px; border-radius: 3px;
+           font: 500 0.625rem/1.4 var(--mono); letter-spacing: 0.05em; text-transform: uppercase; }
+.verdict.keep { background: var(--accent-soft); color: var(--ink); }
+.verdict.cut  { background: var(--surface-2); color: var(--muted); }
+
+.overlap { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
+           font-size: 0.875rem; color: var(--muted); text-wrap: pretty; }
+.overlap b { color: var(--accent); font-weight: 600; }
+
+@media (max-width: 760px) { .cols { grid-template-columns: 1fr; gap: 30px; } }
+
 /* ---------- states ---------- */
 .note { margin: 44px 0; color: var(--muted); max-width: 62ch; }
 .note h2 { margin: 0 0 10px; font-size: 1rem; font-weight: 600; color: var(--ink); }
@@ -238,6 +327,10 @@ ol { list-style: none; margin: 0; padding: 0; }
                aria-label="Scene search query">
       </div>
       <button class="go" id="go" type="submit">Search</button>
+      <div class="views" role="group" aria-label="View">
+        <button type="button" id="vRank" aria-pressed="true" disabled>Ranked</button>
+        <button type="button" id="vCmp"  aria-pressed="false" disabled>Compare</button>
+      </div>
     </form>
     <div class="readout" id="readout" hidden aria-live="polite"></div>
   </div>
@@ -249,9 +342,8 @@ ol { list-style: none; margin: 0; padding: 0; }
     <p>An embedding pulls 50 candidates, then Jev scores each one against the query and
     re-ranks. Every row shows how far Jev moved it and why &mdash; and plays the real clip,
     because a caption is not evidence.</p>
-    <p>Try something compositional, where the <em>relationship</em> matters:
-    <code>a person cooking food outdoors</code></p>
   </div>
+  <div class="tries" id="tries"></div>
 </main>
 
 <script>
@@ -308,7 +400,129 @@ function rowHTML(h, floor) {
   </li>`;
 }
 
-function render(d) {
+// Verified against this corpus, grouped by what each one demonstrates. The counts are
+// what Jev kept when measured, so a chip that reads "0 kept" is a correct rejection.
+const TRIES = [
+  ['Compositional — the relationship is the query',
+   'Embeddings treat these as a bag of concepts, so they match the nouns and miss the relation.',
+   [['a car driving through snow', '1 kept'],
+    ['a person cooking food outdoors', '5 kept'],
+    ['someone playing a musical instrument while sitting down', '8 kept'],
+    ['a person talking directly to the camera in a kitchen', '16 kept'],
+    ['a video game character shooting inside a building', ''],
+    ['a small animal being held in someone\u2019s hands', ''],
+    ['two people dancing together indoors', '']]],
+  ['Not in the corpus — watch it say no',
+   'Embeddings still return 50 results. Jev returns none, and the rejected thumbnails show why.',
+   [['a dog running on a beach', '0 kept'],
+    ['a plane flying above the clouds', '0 kept'],
+    ['someone riding a motorcycle at night', '0 kept']]],
+  ['Literal — where embeddings already do fine',
+   'One clear subject, no relation to get wrong. Expect Jev to agree and change little.',
+   [['a basketball being thrown into a hoop', ''],
+    ['a person applying makeup in front of a mirror', ''],
+    ['a man in a suit speaking at a news desk', ''],
+    ['someone pouring liquid into a glass', ''],
+    ['a crowd watching a performance on a stage', '15 kept']]],
+];
+
+function paintTries() {
+  const el = document.getElementById('tries');
+  if (!el) return;
+  el.innerHTML = TRIES.map(([h, why, qs]) => `<div class="tryGroup">
+    <h3>${h}</h3><p>${why}</p><div class="chips">` +
+    qs.map(([q, n]) => `<button class="chip" type="button" data-q="${q}">${q}${
+      n ? `<span class="n">${n}</span>` : ''}</button>`).join('') + '</div></div>').join('');
+}
+paintTries();
+
+let LAST = null;
+const vRank = document.getElementById('vRank'), vCmp = document.getElementById('vCmp');
+
+function setView(v) {
+  vRank.setAttribute('aria-pressed', v === 'rank');
+  vCmp.setAttribute('aria-pressed', v === 'cmp');
+  if (!LAST) return;
+  (v === 'cmp' ? renderCompare : renderRanked)(LAST);
+}
+vRank.addEventListener('click', () => setView('rank'));
+vCmp.addEventListener('click', () => setView('cmp'));
+
+function crow(h, kept, cross) {
+  return `<div class="crow ${kept ? 'keep' : 'cut'}">
+    <div class="cs">${h.jev === null ? '—' : fmt(h.jev)}</div>
+    <button class="cthumb" type="button" aria-label="Play ${h.video}">
+      <video muted loop playsinline preload="metadata" data-src="/video/${h.video}#t=0.5"></video>
+    </button>
+    <div class="cmeta">
+      <div class="cvid">${h.video}</div>
+      <div class="cx">${cross}</div>
+      <span class="verdict ${kept ? 'keep' : 'cut'}">${kept ? 'jev keeps' : 'jev cuts'}</span>
+    </div></div>`;
+}
+
+function renderCompare(d) {
+  const s = d.stats;
+  const kept = d.hits.filter(h => h.jev !== null && h.jev >= d.floor);
+  const n = kept.length;
+  // Embeddings have no cutoff, so "kept by embedding" is defined as its top-N at the
+  // SAME N Jev kept — the apples-to-apples question is what each would actually show.
+  const shown = n || 10;
+  const byEmb = [...d.hits].sort((a, b) => a.embRank - b.embRank).slice(0, shown);
+  const embTotal = s.embedMs || 1;
+  const max = Math.max(embTotal, s.jevMs);
+  const inBoth = kept.filter(h => byEmb.some(e => e.video === h.video)).length;
+
+  out.innerHTML = `<div class="cmp">
+    <div class="cmpBlock">
+      <div class="cmpH">Speed <span>one search, this query</span></div>
+      <div class="metric"><div class="who">embeddings</div>
+        <div class="track"><div class="fill" style="width:${100*embTotal/max}%"></div></div>
+        <div class="val">${s.embedMs} ms</div></div>
+      <div class="metric jev"><div class="who">+ jev</div>
+        <div class="track"><div class="fill" style="width:${100*s.jevMs/max}%"></div></div>
+        <div class="val">${s.jevMs} ms <em>· ${(s.jevMs/s.candidates).toFixed(0)} ms/candidate</em></div></div>
+      <p class="cmpNote">Jev costs <b>${(s.jevMs/embTotal).toFixed(0)}×</b> the embedding path
+      (${s.jevCalls} calls, ${s.concurrency} in flight). Ranking the full
+      ${s.corpus}-scene corpus is a dot product and is not the cost here; the embedding
+      figure is almost entirely one call to Ollama for the query vector.</p>
+    </div>
+
+    <div class="cmpBlock">
+      <div class="cmpH">Count <span>what each is willing to return</span></div>
+      <div class="metric"><div class="who">embeddings</div>
+        <div class="track"><div class="fill" style="width:100%"></div></div>
+        <div class="val">${s.candidates} returned</div></div>
+      <div class="metric jev"><div class="who">+ jev</div>
+        <div class="track"><div class="fill" style="width:${100*n/s.candidates}%"></div></div>
+        <div class="val">${n} kept <em>· ${s.candidates-n} cut (${Math.round(100*(s.candidates-n)/s.candidates)}%)</em></div></div>
+      <p class="cmpNote">Embeddings always return k. There is no similarity at which they
+      abstain &mdash; an embedding score has no absolute meaning, only a relative one.
+      ${n ? '' : '<b>Jev kept nothing here, and that is the answer.</b>'}</p>
+    </div>
+
+    <div class="cmpBlock">
+      <div class="cmpH">What each would show
+        <span>${n ? `matched at ${n}` : `jev shows none; embedding&rsquo;s top ${shown} for reference`}</span></div>
+      <div class="cols">
+        <div><div class="colH"><b>Kept by Jev</b><i>${n ? `${n} above ${fmt(d.floor)}` : 'nothing'}</i></div>
+          ${n ? kept.map(h => crow(h, true, `jev #${h.jevRank} · was emb #${h.embRank} · sim ${fmt(h.sim)}`)).join('')
+              : '<p class="cmpNote">No scene in the corpus matches this query.</p>'}</div>
+        <div><div class="colH"><b>Kept by embedding</b><i>top ${shown} by sim</i></div>
+          ${byEmb.map(h => crow(h, h.jev !== null && h.jev >= d.floor,
+             `emb #${h.embRank} · sim ${fmt(h.sim)} · jev ${h.jev === null ? '—' : fmt(h.jev)}`)).join('')}</div>
+      </div>
+      ${n ? `<p class="overlap"><b>${inBoth}/${n}</b> clips appear in both sets.
+        Swapping the embedding ranking for Jev's changes <b>${n - inBoth}</b> of the
+        ${n} results you'd actually show.</p>`
+          : `<p class="overlap">Embeddings would show ${shown} clips here. Jev shows
+        <b>none</b> — every one of those ${shown} scored below ${fmt(d.floor)}.</p>`}
+    </div>
+  </div>`;
+  out.querySelectorAll('video').forEach(v => io.observe(v));
+}
+
+function renderRanked(d) {
   const above = d.hits.filter(h => h.jev !== null && h.jev >= d.floor);
   const below = d.hits.filter(h => !(h.jev !== null && h.jev >= d.floor));
   let html = '';
@@ -358,7 +572,10 @@ form.addEventListener('submit', async e => {
     const r = await fetch('/api/search?q=' + encodeURIComponent(q) + '&k=50');
     const d = await r.json();
     if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
-    render(d); showReadout(d.stats);
+    LAST = d;
+    vRank.disabled = vCmp.disabled = false;
+    setView(vCmp.getAttribute('aria-pressed') === 'true' ? 'cmp' : 'rank');
+    showReadout(d.stats);
   } catch (err) {
     out.innerHTML = `<div class="note err"><h2>Search failed.</h2><p>${err.message}</p></div>`;
   } finally {
@@ -367,6 +584,11 @@ form.addEventListener('submit', async e => {
 });
 
 // Click a thumb to play; clicking another stops the first so only one clip runs.
+document.addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (chip) { input.value = chip.dataset.q; form.requestSubmit(); }
+});
+
 out.addEventListener('click', e => {
   const more = e.target.closest('.more');
   if (more) {
@@ -375,12 +597,12 @@ out.addEventListener('click', e => {
     more.textContent = open ? 'less' : 'full caption';
     return;
   }
-  const thumb = e.target.closest('.thumb');
+  const thumb = e.target.closest('.thumb, .cthumb');
   if (!thumb) return;
   const v = thumb.querySelector('video');
   if (!v.src && v.dataset.src) v.src = v.dataset.src;
   if (v.paused) {
-    out.querySelectorAll('.thumb.playing').forEach(t => {
+    out.querySelectorAll('.thumb.playing, .cthumb.playing').forEach(t => {
       t.classList.remove('playing'); t.querySelector('video').pause();
     });
     v.play().then(() => thumb.classList.add('playing')).catch(() => {});

@@ -87,25 +87,61 @@ def main():
           "embedding similarity has no absolute meaning, only a relative one.")
 
     # ---- LIST --------------------------------------------------------------
+    # Only the kept sets, not the whole shortlist. Embeddings have no cutoff, so
+    # "kept by embedding" is defined as its top-N at the SAME N Jev kept: the
+    # apples-to-apples question is "what would each method actually have shown?"
     for r in results[:args.lists]:
-        print(f"\n\nLIST  \"{r['query']}\"   top {args.rows}")
-        print(f"{'#':>3}  {'EMBEDDINGS':<44}{'':>4}{'+ JEV':<44}")
+        n = len(r["kept"])
+        jev_set = r["kept"]
+        shown = n if n else args.rows          # nothing kept -> show what emb would have anyway
+        emb_set = r["emb"][:shown]
+
+        jev_rank = {p[0]["video"]: i + 1 for i, p in enumerate(r["jev"])}
+        emb_rank = {p[0]["video"]: i + 1 for i, p in enumerate(r["emb"])}
+        jev_score = {p[0]["video"]: p[2] for p in r["jev"]}
+
+        head = (f'kept by jev {n}  ·  kept by embedding = its top {shown}'
+                if n else f'jev kept NOTHING  ·  embedding would still show its top {shown}')
+        print(f'\n\nLIST  "{r["query"]}"\n      {head}')
+        print(f"{'':<2}{'KEPT BY JEV':<44}{'':2}{'KEPT BY EMBEDDING':<44}")
+        print(f"{'#':>2}  {'score':<6}{'clip':<13}{'was emb#':<10}{'':2}"
+              f"{'sim':<7}{'clip':<13}{'jev':<6}{'verdict':<9}")
         print("-" * 98)
-        for i in range(args.rows):
-            e = r["emb"][i] if i < len(r["emb"]) else None
-            j = r["jev"][i] if i < len(r["jev"]) else None
-            el = f"{e[1]:.3f} {e[0]['video'][:-4]:<12}" if e else ""
-            if j:
-                mark = "keep" if (j[2] is not None and j[2] >= core.FLOOR) else "cut "
-                jl = f"{j[2]:.2f} {j[0]['video'][:-4]:<12} {mark}"
+        for i in range(max(len(jev_set), len(emb_set))):
+            if i < len(jev_set):
+                v = jev_set[i][0]["video"][:-4]
+                left = f"{jev_set[i][2]:<6.2f}{v:<13}#{emb_rank[v + '.mp4']:<9}"
             else:
-                jl = ""
-            same = "  =" if e and j and e[0]["video"] == j[0]["video"] else "   "
-            print(f"{i+1:>3}  {el:<44}{same:>4}{jl:<44}")
-        overlap = len({p[0]["video"] for p in r["emb"][:args.rows]}
-                      & {p[0]["video"] for p in r["jev"][:args.rows]})
-        print(f"     top-{args.rows} overlap: {overlap}/{args.rows} "
-              f"({100*overlap/args.rows:.0f}% of the list is the same clips, reordered)")
+                left = " " * 29
+            if i < len(emb_set):
+                e = emb_set[i]; v = e[0]["video"][:-4]
+                js = jev_score[e[0]["video"]]
+                kept = js is not None and js >= core.FLOOR
+                right = (f"{e[1]:<7.3f}{v:<13}{(f'{js:.2f}' if js is not None else '  - '):<6}"
+                         f"{'kept' if kept else 'JEV CUT':<9}")
+            else:
+                right = ""
+            print(f"{i+1:>2}  {left}{'':2}{right}")
+
+        a = {p[0]["video"] for p in jev_set}
+        b = {p[0]["video"] for p in emb_set}
+        same = len(a & b)
+        print("-" * 98)
+        if n:
+            print(f"    same clips in both sets: {same}/{n}"
+                  f"   ·   only jev would show: {len(a - b)}"
+                  f"   ·   only embedding would show: {len(b - a)}")
+            cut = [p for p in emb_set if not (jev_score[p[0]['video']] is not None
+                                              and jev_score[p[0]['video']] >= core.FLOOR)]
+            if cut:
+                print(f"    embedding would have shown {len(cut)} clip(s) jev rejects, e.g. "
+                      f"{cut[0][0]['video'][:-4]} (sim {cut[0][1]:.3f}, jev {jev_score[cut[0][0]['video']]:.2f})")
+                print(f"      \"{cut[0][0]['caption'][:120]}\"")
+        else:
+            print(f"    embedding would show {shown} clips here; jev shows none.")
+            print(f"      top pick {emb_set[0][0]['video'][:-4]} sim {emb_set[0][1]:.3f} / "
+                  f"jev {jev_score[emb_set[0][0]['video']]:.2f}")
+            print(f"      \"{emb_set[0][0]['caption'][:120]}\"")
 
 
 if __name__ == "__main__":

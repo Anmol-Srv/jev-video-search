@@ -109,6 +109,13 @@ did to the embedding ranking:
 - **Every row plays the real clip.** A caption is not evidence. Rejections are checkable
   in a glance: search "a dog running on a beach" and the rejected thumbnails are visibly
   a couple *walking* a dog and people standing on a beach.
+- **Compare view** (toggle in the header) — speed, count, and the two kept sets side
+  by side. "Kept by embedding" is defined as its top-N at the *same N* Jev kept, since
+  embeddings have no cutoff; the apples-to-apples question is what each would actually
+  show. Side-by-side is right here and wrong for the ranked view: matched at N=5 it's
+  two short columns, not 50 rows to diff by eye.
+- **Prompts to try**, grouped by what they demonstrate: compositional wins, queries with
+  no match in the corpus, and literal queries where embeddings already do fine.
 - **Latency/cost readout** — total, the embed/Jev split, and the call count, so the
   rerank's price sits next to its benefit (~3.7s for 50 calls at concurrency 6).
 
