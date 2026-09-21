@@ -23,8 +23,9 @@ import numpy as np
 import core
 
 
-def ranks(query, truth, rows, vecs, top_k):
-    """(embedding rank, jev rank, jev score of the true clip). rank None = missed."""
+def score_query(query, truth, rows, vecs, top_k):
+    """Score one query. Returns the shortlist with both signals attached, so the
+    threshold sweep can be replayed from disk instead of re-billing Jev."""
     qv = core.embed([query])[0]
     order = np.argsort(-(vecs @ qv))[:top_k]
     shortlist = [rows[i] for i in order]
@@ -35,18 +36,36 @@ def ranks(query, truth, rows, vecs, top_k):
                 return i + 1
         return None
 
-    emb_rank = rank_of(shortlist)
+    sims = vecs @ qv
     scores = core.jev_scores(query, [s["caption"] for s in shortlist])
-    if all(s is None for s in scores):
-        return emb_rank, emb_rank, None, 0
-    pairs = list(zip(shortlist, scores))
-    reranked = sorted(enumerate(pairs),
-                      key=lambda p: (-(p[1][1] if p[1][1] is not None else -1), p[0]))
-    jev_rank = rank_of([p[0] for _, p in reranked])
-    truth_score = next((s for r, s in pairs if r["video"] == truth), None)
-    false_pos = sum(1 for r, s in pairs
-                    if s is not None and s >= core.FLOOR and r["video"] != truth)
-    return emb_rank, jev_rank, truth_score, false_pos
+    return {"query": query, "truth": truth,
+            "hits": [{"video": r["video"], "sim": float(sims[i]), "jev": j}
+                     for i, r, j in zip(order, shortlist, scores)]}
+
+
+def measure(records, floor):
+    """Replayable metrics: everything here is derived from cached scores."""
+    E, J, above, fps = [], [], 0, []
+
+    def rank_of(seq, truth):
+        for i, h in enumerate(seq):
+            if h["video"] == truth:
+                return i + 1
+        return None
+
+    for rec in records:
+        hits, truth = rec["hits"], rec["truth"]
+        E.append(rank_of(hits, truth))
+        if all(h["jev"] is None for h in hits):
+            J.append(E[-1]); fps.append(0); continue
+        rr = sorted(enumerate(hits),
+                    key=lambda p: (-(p[1]["jev"] if p[1]["jev"] is not None else -1), p[0]))
+        J.append(rank_of([h for _, h in rr], truth))
+        ts = next((h["jev"] for h in hits if h["video"] == truth), None)
+        above += ts is not None and ts >= floor
+        fps.append(sum(1 for h in hits
+                       if h["jev"] is not None and h["jev"] >= floor and h["video"] != truth))
+    return E, J, above, fps
 
 
 def eval_msrvtt(args, rows, vecs):
@@ -57,14 +76,19 @@ def eval_msrvtt(args, rows, vecs):
     gt = gt[:args.n]
     print(f"{len(gt)} queries over {len(rows)} indexed scenes, top_k={args.top_k}\n")
 
-    E, J, hits_above, fps, ceiling = [], [], 0, [], 0
+    records = []
     for i, g in enumerate(gt, 1):
-        e, j, ts, fp = ranks(g["caption"], g["video"], rows, vecs, args.top_k)
-        E.append(e); J.append(j); fps.append(fp)
-        ceiling += e is not None
-        hits_above += ts is not None and ts >= core.FLOOR
+        records.append(score_query(g["caption"], g["video"], rows, vecs, args.top_k))
         if i % 10 == 0:
             print(f"  ...{i}/{len(gt)}", flush=True)
+    Path(args.dump).write_text(json.dumps(records))
+    print(f"scores cached -> {args.dump} (replay sweeps with --sweep, no new API calls)")
+    report(records, args.top_k)
+
+
+def report(records, top_k):
+    E, J, above, fps = measure(records, core.FLOOR)
+    n = len(records)
 
     def rk(rs, k):
         return 100 * sum(1 for r in rs if r is not None and r <= k) / len(rs)
@@ -72,10 +96,17 @@ def eval_msrvtt(args, rows, vecs):
     print(f"\n{'':<14}{'R@1':>8}{'R@5':>8}{'R@10':>8}")
     print(f"{'embeddings':<14}{rk(E,1):>8.1f}{rk(E,5):>8.1f}{rk(E,10):>8.1f}")
     print(f"{'+ jev':<14}{rk(J,1):>8.1f}{rk(J,5):>8.1f}{rk(J,10):>8.1f}")
-    print(f"\nrecall@{args.top_k}: {100*ceiling/len(gt):.1f}%  <- ceiling; jev cannot "
-          f"rank what retrieval never surfaced")
-    print(f"cutoff: true clip scored >= {core.FLOOR} on {100*hits_above/len(gt):.1f}% of "
-          f"queries, with {np.mean(fps):.1f} false positives above the floor per query")
+    print(f"\nrecall@{top_k}: {100*sum(r is not None for r in E)/n:.1f}%  <- ceiling; jev "
+          f"cannot rank what retrieval never surfaced")
+
+    # An embedding score has no absolute meaning, so "none of these match" is not a
+    # question embedding-only search can answer. Whether Jev can depends entirely on
+    # where the floor sits -- so show the tradeoff instead of asserting one number.
+    print(f"\ncutoff sweep (can it say 'no'?)")
+    print(f"{'floor':>7}{'true clip kept':>17}{'false pos/query':>18}")
+    for f in (0.3, 0.5, 0.55, 0.7, 0.8, 0.9, 0.95):
+        _, _, a, fp = measure(records, f)
+        print(f"{f:>7}{100*a/n:>16.0f}%{np.mean(fp):>18.1f}")
 
 
 def eval_queries(args, rows, vecs):
@@ -100,8 +131,13 @@ def main():
     ap.add_argument("--queries")
     ap.add_argument("-n", type=int, default=100, help="queries to evaluate")
     ap.add_argument("--top-k", type=int, default=30)
+    ap.add_argument("--dump", default="index/eval_scores.json")
+    ap.add_argument("--sweep", help="replay metrics from a cached dump; no API calls")
     args = ap.parse_args()
 
+    if args.sweep:
+        report(json.loads(Path(args.sweep).read_text()), args.top_k)
+        return
     rows, vecs = core.load_index(Path(args.index))
     if args.queries:
         eval_queries(args, rows, vecs)
