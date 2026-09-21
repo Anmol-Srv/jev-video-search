@@ -1,618 +1,514 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>jev-video-search</title>
+<title>Video scene search</title>
 <style>
-/* Grading-suite neutral: the surround stays essentially untinted because video is
-   on screen, and a tinted surround biases how the footage reads. One signal color. */
+/* Neutral dark surround: video is on screen, and a tinted surround biases how the
+   footage reads. One signal colour, used only for a match. */
 :root {
   --bg:        oklch(0.155 0.004 250);
-  --surface:   oklch(0.196 0.005 250);
-  --surface-2: oklch(0.240 0.006 250);
-  --line:      oklch(0.305 0.008 250);
-  --line-soft: oklch(0.255 0.007 250);
+  --surface:   oklch(0.198 0.005 250);
+  --surface-2: oklch(0.242 0.006 250);
+  --line:      oklch(0.288 0.007 250);
+  --line-soft: oklch(0.232 0.006 250);
 
   --ink:   oklch(0.965 0.003 250);
   --muted: oklch(0.742 0.007 250);
-  --dim:   oklch(0.598 0.007 250);
+  --dim:   oklch(0.620 0.007 250);
 
   --accent:      oklch(0.800 0.145 142);
   --accent-ink:  oklch(0.180 0.040 142);
-  --accent-soft: oklch(0.360 0.070 142);
+  --accent-soft: oklch(0.345 0.068 142);
 
-  --focus: oklch(0.800 0.145 142);
-
-  --z-sticky: 10;
-  --z-toast: 40;
-
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);   /* ease-out-quart */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --fast: 140ms;
-  --base: 220ms;
-
+  --base: 240ms;
   --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
 }
-
 * { box-sizing: border-box; }
 html, body { margin: 0; }
 body {
-  background: var(--bg);
-  color: var(--ink);
+  background: var(--bg); color: var(--ink);
   font: 400 15px/1.55 var(--sans);
-  -webkit-font-smoothing: antialiased;
-  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased; font-synthesis-weight: none;
 }
 :where(button, input) { font: inherit; color: inherit; }
-
-/* Visible focus everywhere, never removed. */
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
 :focus:not(:focus-visible) { outline: none; }
+.wrap { max-width: 940px; margin: 0 auto; padding: 0 28px 120px; }
 
-.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 96px; }
+/* ---------- header ---------- */
+header { position: sticky; top: 0; z-index: 10;
+         background: color-mix(in oklab, var(--bg) 92%, transparent);
+         backdrop-filter: blur(14px); border-bottom: 1px solid var(--line-soft); }
+.bar { max-width: 940px; margin: 0 auto; padding: 20px 28px; }
+.brand { display: flex; align-items: baseline; gap: 10px; margin: 0 0 16px; }
+.brand h1 { margin: 0; font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.01em; }
+.brand span { font-size: 0.8125rem; color: var(--dim); }
 
-/* ---------- masthead + search ---------- */
-header {
-  position: sticky; top: 0; z-index: var(--z-sticky);
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--line-soft);
-}
-.bar { max-width: 1080px; margin: 0 auto; padding: 18px 24px 20px; }
-.title {
-  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
-  margin: 0 0 14px;
-}
-.title h1 { margin: 0; font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.01em; }
-.title .sub { color: var(--dim); font-size: 0.8125rem; }
-
-form { display: flex; gap: 10px; }
-.field { position: relative; flex: 1; }
+/* Wraps rather than overflowing: input + button + toggle do not fit one row at 390px. */
+form { display: flex; gap: 10px; flex-wrap: wrap; }
 input[type=search] {
-  width: 100%; padding: 12px 14px;
-  background: var(--surface); color: var(--ink);
-  border: 1px solid var(--line); border-radius: 8px;
+  flex: 1 1 240px; min-width: 0; padding: 13px 15px; background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 9px;
   transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
   -webkit-appearance: none; appearance: none;
 }
 input[type=search]::-webkit-search-cancel-button { filter: invert(0.7); }
-input[type=search]::placeholder { color: var(--dim); }   /* 4.5:1 on surface */
+input[type=search]::placeholder { color: var(--dim); }
 input[type=search]:hover { border-color: var(--surface-2); }
 input[type=search]:focus { border-color: var(--accent-soft); background: var(--surface-2); }
 
-button.go {
-  padding: 12px 20px; border-radius: 8px; border: 1px solid transparent;
-  background: var(--accent); color: var(--accent-ink);
-  font-weight: 600; cursor: pointer; white-space: nowrap;
-  transition: filter var(--fast) var(--ease), transform var(--fast) var(--ease);
-}
+button.go { padding: 13px 22px; border: 0; border-radius: 9px;
+  background: var(--accent); color: var(--accent-ink); font-weight: 600; cursor: pointer;
+  transition: filter var(--fast) var(--ease); white-space: nowrap; }
 button.go:hover:not(:disabled) { filter: brightness(1.08); }
-button.go:active:not(:disabled) { transform: translateY(1px); }
 button.go:disabled { background: var(--surface-2); color: var(--dim); cursor: progress; }
 
-/* ---------- readout ---------- */
-.readout {
-  display: flex; gap: 20px; flex-wrap: wrap; align-items: baseline;
-  margin-top: 14px; min-height: 19px;
-  font: 400 0.75rem/1 var(--mono); color: var(--dim);
-  font-variant-numeric: tabular-nums;
-}
-.readout b { color: var(--muted); font-weight: 500; }
-.readout .split { color: var(--accent); }
-.readout[hidden] { display: none; }
-
-/* ---------- results ---------- */
-.groupLabel {
-  display: flex; align-items: center; gap: 14px;
-  margin: 34px 0 6px;
-  font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--muted);
-}
-.groupLabel::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
-.groupLabel.cut { color: var(--dim); }
-.groupLabel.cut::after { background: repeating-linear-gradient(90deg, var(--line) 0 5px, transparent 5px 10px); }
-
-ol { list-style: none; margin: 0; padding: 0; }
-
-.row {
-  display: grid;
-  grid-template-columns: 74px 56px 132px 1fr;
-  gap: 18px; align-items: start;
-  padding: 16px 0;
-  border-bottom: 1px solid var(--line-soft);
-}
-.row:last-child { border-bottom: 0; }
-/* De-emphasis must not cost legibility: the rejected list is half the point of this
-   view, and group opacity dropped body text to 2.91:1 (measured). Dim the thumbnail
-   -- an image, no contrast floor -- and step the text down one ramp stop instead. */
-.row.below .thumb video {
-  filter: saturate(0.25) brightness(0.72);
-  transition: filter var(--base) var(--ease);
-}
-.row.below:hover .thumb video, .row.below:focus-within .thumb video { filter: none; }
-.row.below .caption { color: var(--dim); }
-
-.score { font: 500 1.375rem/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
-.row.above .score { color: var(--accent); }
-.row.below .score { color: var(--muted); }
-.score .na { font-size: 0.8125rem; color: var(--dim); }
-.sim { margin-top: 5px; font: 400 0.6875rem/1 var(--mono); color: var(--dim); font-variant-numeric: tabular-nums; }
-
-/* Movement is never color alone: arrow glyph + number carry it. */
-.move { font: 500 0.8125rem/1 var(--mono); font-variant-numeric: tabular-nums; padding-top: 5px; }
-.move.up { color: var(--accent); }
-.move.down, .move.flat { color: var(--dim); }
-.move .ranks { display: block; margin-top: 6px; font-size: 0.6875rem; color: var(--dim); }
-
-.thumb {
-  position: relative; width: 132px; aspect-ratio: 16/10;
-  background: var(--surface); border: 1px solid var(--line-soft);
-  border-radius: 6px; overflow: hidden; cursor: pointer;
-  padding: 0; display: block;
-  transition: border-color var(--fast) var(--ease);
-}
-.thumb:hover { border-color: var(--accent-soft); }
-.thumb video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
-.thumb .play {
-  position: absolute; inset: 0; display: grid; place-items: center;
-  background: linear-gradient(to top, oklch(0 0 0 / 0.45), oklch(0 0 0 / 0.12));
-  color: oklch(1 0 0 / 0.92); transition: opacity var(--fast) var(--ease);
-  pointer-events: none;
-}
-.thumb.playing .play { opacity: 0; }
-.thumb .missing {
-  position: absolute; inset: 0; display: grid; place-items: center;
-  font: 400 0.6875rem var(--mono); color: var(--dim); text-align: center; padding: 8px;
-}
-
-.meta .vid {
-  font: 500 0.8125rem/1 var(--mono); color: var(--muted);
-  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
-}
-.tag {
-  font: 500 0.625rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
-  padding: 3px 6px; border-radius: 3px; background: var(--surface-2);
-  color: var(--muted);   /* --dim here measured 4.12:1 on --surface-2; below the 4.5 floor */
-}
-.tag.kept { background: var(--accent-soft); color: var(--ink); }
-.caption {
-  margin: 8px 0 0; color: var(--muted); font-size: 0.875rem;
-  max-width: 68ch; text-wrap: pretty;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-}
-.caption.open { -webkit-line-clamp: unset; }
-.more {
-  margin-top: 6px; background: none; border: 0; padding: 0; cursor: pointer;
-  font: 400 0.75rem var(--mono); color: var(--dim);
-  text-decoration: underline; text-underline-offset: 3px;
-}
-.more:hover { color: var(--muted); }
-
-/* ---------- prompts to try ---------- */
-.tries { margin: 30px 0; }
-.tryGroup { margin-bottom: 22px; }
-.tryGroup h3 {
-  margin: 0 0 4px; font: 500 0.6875rem/1 var(--mono);
-  letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
-}
-.tryGroup p { margin: 0 0 10px; font-size: 0.8125rem; color: var(--dim); max-width: 72ch; }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip {
-  padding: 8px 12px; border-radius: 999px; cursor: pointer;
-  background: var(--surface); border: 1px solid var(--line); color: var(--muted);
-  font: 400 0.8125rem var(--sans); text-align: left;
-  transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease),
-              background var(--fast) var(--ease);
-}
-.chip:hover { border-color: var(--accent-soft); color: var(--ink); background: var(--surface-2); }
-.chip .n { font: 500 0.6875rem var(--mono); color: var(--dim); margin-left: 6px; }
-.chip:hover .n { color: var(--muted); }
-
-/* ---------- view toggle ---------- */
 .views { display: flex; gap: 2px; padding: 2px; background: var(--surface);
-         border: 1px solid var(--line); border-radius: 8px; }
-.views button {
-  padding: 9px 14px; border: 0; border-radius: 6px; background: none; color: var(--muted);
-  font-size: 0.8125rem; font-weight: 500; cursor: pointer;
-  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
-}
+         border: 1px solid var(--line); border-radius: 9px; }
+.views button { padding: 10px 15px; border: 0; border-radius: 7px; background: none;
+  color: var(--muted); font-size: 0.8125rem; font-weight: 500; cursor: pointer;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease); }
 .views button:hover:not([aria-pressed=true]):not(:disabled) { color: var(--ink); }
 .views button[aria-pressed=true] { background: var(--surface-2); color: var(--ink); }
 .views button:disabled { color: var(--dim); cursor: not-allowed; }
 
-/* ---------- compare view ---------- */
-.cmp { margin-top: 34px; }
-.cmpBlock { margin-bottom: 34px; }
-.cmpH {
-  display: flex; align-items: baseline; gap: 14px; margin: 0 0 14px;
-  font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase;
-  color: var(--muted);
-}
-.cmpH span { letter-spacing: 0; text-transform: none; color: var(--dim); font-size: 0.75rem; }
-.cmpH::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+/* ---------- progress + status ---------- */
+.status { display: flex; align-items: center; gap: 12px; margin-top: 15px; min-height: 18px;
+          font-size: 0.8125rem; color: var(--dim); }
+.status[hidden] { display: none; }
+.bar-track { flex: 0 0 120px; height: 3px; background: var(--surface-2);
+             border-radius: 2px; overflow: hidden; }
+.bar-fill { height: 100%; width: 0; background: var(--accent);
+            transition: width 180ms linear; }
+.status b { color: var(--muted); font-weight: 500; font-variant-numeric: tabular-nums; }
 
-.metric { display: grid; grid-template-columns: 120px 1fr auto; gap: 14px;
-          align-items: center; padding: 7px 0; }
-.metric .who { font: 500 0.8125rem var(--mono); color: var(--muted); }
-.metric .track { height: 10px; background: var(--surface); border-radius: 3px; overflow: hidden; }
-.metric .fill { height: 100%; background: var(--surface-2); border-radius: 3px;
-                transition: width var(--base) var(--ease); }
-.metric.jev .fill { background: var(--accent); }
-.metric .val { font: 500 0.8125rem var(--mono); font-variant-numeric: tabular-nums;
-               color: var(--ink); white-space: nowrap; }
+/* ---------- sections ---------- */
+.sec { margin-top: 42px; }
+.sec h2 { margin: 0 0 4px; font-size: 1rem; font-weight: 600; letter-spacing: -0.01em; }
+.sec .sub { margin: 0 0 18px; font-size: 0.8125rem; color: var(--dim);
+            max-width: 68ch; text-wrap: pretty; }
+
+ol { list-style: none; margin: 0; padding: 0; }
+
+.row { display: grid; grid-template-columns: 62px 148px 1fr; gap: 20px;
+       align-items: start; padding: 18px 0; border-bottom: 1px solid var(--line-soft); }
+.row:last-child { border-bottom: 0; }
+
+.score { font: 500 1.5rem/1 var(--mono); font-variant-numeric: tabular-nums;
+         letter-spacing: -0.02em; color: var(--accent); }
+.row.no .score { color: var(--muted); }
+
+.thumb { position: relative; width: 148px; aspect-ratio: 16/10; display: block; padding: 0;
+  background: var(--surface); border: 1px solid var(--line-soft); border-radius: 7px;
+  overflow: hidden; cursor: pointer; transition: border-color var(--fast) var(--ease); }
+.thumb:hover { border-color: var(--accent-soft); }
+.thumb video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
+.row.no .thumb video { filter: saturate(0.25) brightness(0.7); }
+.row.no:hover .thumb video { filter: none; }
+.thumb .play { position: absolute; inset: 0; display: grid; place-items: center;
+  background: linear-gradient(to top, oklch(0 0 0 / 0.42), oklch(0 0 0 / 0.1));
+  color: oklch(1 0 0 / 0.93); pointer-events: none;
+  transition: opacity var(--fast) var(--ease); }
+.thumb.playing .play { opacity: 0; }
+
+.meta { min-width: 0; }
+.name { font: 500 0.8125rem/1 var(--mono); color: var(--muted); }
+.cap { margin: 9px 0 0; color: var(--muted); font-size: 0.875rem; max-width: 66ch;
+  text-wrap: pretty; cursor: pointer;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.row.no .cap { color: var(--dim); }
+.cap.open { -webkit-line-clamp: unset; }
+.moved { margin-top: 9px; font-size: 0.75rem; color: var(--dim); }
+.moved b { color: var(--accent); font-weight: 500; }
+
+details { margin-top: 42px; }
+details > summary { cursor: pointer; font-size: 1rem; font-weight: 600;
+  padding: 14px 0; border-top: 1px solid var(--line); list-style: none; }
+details > summary::-webkit-details-marker { display: none; }
+details > summary::before { content: "▸ "; color: var(--dim); }
+details[open] > summary::before { content: "▾ "; }
+details > summary:hover { color: var(--accent); }
+details .sub { margin: 0 0 8px; font-size: 0.8125rem; color: var(--dim); }
+
+/* ---------- intro + prompts ---------- */
+.intro { margin: 46px 0 40px; max-width: 64ch; }
+.intro h2 { margin: 0 0 10px; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.015em; }
+.intro p { margin: 0; color: var(--muted); text-wrap: pretty; }
+.group { margin-bottom: 26px; }
+.group h3 { margin: 0 0 3px; font-size: 0.875rem; font-weight: 600; color: var(--ink); }
+.group p { margin: 0 0 11px; font-size: 0.8125rem; color: var(--dim); max-width: 68ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { padding: 9px 13px; border-radius: 999px; cursor: pointer; text-align: left;
+  background: var(--surface); border: 1px solid var(--line); color: var(--muted);
+  font: 400 0.8125rem var(--sans);
+  transition: border-color var(--fast) var(--ease), color var(--fast) var(--ease),
+              background var(--fast) var(--ease); }
+.chip:hover { border-color: var(--accent-soft); color: var(--ink); background: var(--surface-2); }
+
+/* ---------- compare ---------- */
+.cmpSec { margin-top: 42px; }
+.cmpSec h2 { margin: 0 0 3px; font-size: 1rem; font-weight: 600; }
+.cmpSec .sub { margin: 0 0 16px; font-size: 0.8125rem; color: var(--dim);
+               max-width: 68ch; text-wrap: pretty; }
+.metric { display: grid; grid-template-columns: 110px 1fr auto; gap: 16px;
+          align-items: center; padding: 8px 0; }
+.metric .who { font-size: 0.875rem; color: var(--muted); }
+.metric .track { height: 9px; background: var(--surface); border-radius: 3px; overflow: hidden; }
+.metric .fill { height: 100%; background: var(--surface-2); border-radius: 3px; }
+.metric.hi .fill { background: var(--accent); }
+.metric .val { font: 500 0.875rem var(--mono); font-variant-numeric: tabular-nums;
+               white-space: nowrap; }
 .metric .val em { font-style: normal; color: var(--dim); }
-.cmpNote { margin: 10px 0 0; font-size: 0.8125rem; color: var(--dim); max-width: 70ch;
-           text-wrap: pretty; }
+.takeaway { margin: 12px 0 0; font-size: 0.875rem; color: var(--muted);
+            max-width: 70ch; text-wrap: pretty; }
+.takeaway b { color: var(--accent); font-weight: 600; }
 
-.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
-.colH { display: flex; align-items: baseline; gap: 8px; margin-bottom: 10px;
-        padding-bottom: 8px; border-bottom: 1px solid var(--line); }
-.colH b { font: 600 0.8125rem var(--sans); color: var(--ink); }
-.colH i { font: 400 0.75rem/1 var(--mono); font-style: normal; color: var(--dim); }
-
-.crow { display: grid; grid-template-columns: 52px 76px 1fr; gap: 10px;
-        align-items: center; padding: 9px 0; border-bottom: 1px solid var(--line-soft); }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+.colH { margin-bottom: 8px; padding-bottom: 9px; border-bottom: 1px solid var(--line);
+        font-size: 0.875rem; font-weight: 600; }
+.colH i { font-style: normal; font-weight: 400; color: var(--dim);
+          font-size: 0.8125rem; margin-left: 6px; }
+.crow { display: grid; grid-template-columns: 46px 84px 1fr; gap: 12px; align-items: center;
+        padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
 .crow:last-child { border-bottom: 0; }
-.crow .cs { font: 500 1rem/1 var(--mono); font-variant-numeric: tabular-nums; }
-.crow.keep .cs { color: var(--accent); }
-.crow.cut .cs { color: var(--muted); }
-.crow .cthumb { width: 76px; aspect-ratio: 16/10; border-radius: 4px; overflow: hidden;
-                background: var(--surface); border: 1px solid var(--line-soft);
-                padding: 0; cursor: pointer; display: block; }
+.crow .cs { font: 500 1rem/1 var(--mono); font-variant-numeric: tabular-nums;
+            color: var(--muted); }
+.crow.hit .cs { color: var(--accent); }
+.crow .cthumb { width: 84px; aspect-ratio: 16/10; border-radius: 5px; overflow: hidden;
+  background: var(--surface); border: 1px solid var(--line-soft); padding: 0;
+  cursor: pointer; display: block; }
 .crow .cthumb video { width: 100%; height: 100%; object-fit: cover; display: block; background:#000; }
-.crow.cut .cthumb video { filter: saturate(0.25) brightness(0.72); }
-.crow .cmeta { min-width: 0; }
-.crow .cvid { font: 500 0.75rem/1.3 var(--mono); color: var(--muted);
-              overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.crow .cx { margin-top: 4px; font: 400 0.6875rem/1 var(--mono); color: var(--dim); }
-.crow .cx b { color: var(--muted); font-weight: 500; }
-.verdict { display: inline-block; margin-top: 4px; padding: 2px 5px; border-radius: 3px;
-           font: 500 0.625rem/1.4 var(--mono); letter-spacing: 0.05em; text-transform: uppercase; }
-.verdict.keep { background: var(--accent-soft); color: var(--ink); }
-.verdict.cut  { background: var(--surface-2); color: var(--muted); }
+.crow:not(.hit) .cthumb video { filter: saturate(0.25) brightness(0.7); }
+.crow .cn { font: 500 0.75rem/1.35 var(--mono); color: var(--muted);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crow .cw { margin-top: 3px; font-size: 0.6875rem; color: var(--dim); }
 
-.overlap { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line);
-           font-size: 0.875rem; color: var(--muted); text-wrap: pretty; }
-.overlap b { color: var(--accent); font-weight: 600; }
+/* ---------- misc states ---------- */
+.msg { margin: 46px 0; max-width: 64ch; }
+.msg h2 { margin: 0 0 10px; font-size: 1.125rem; font-weight: 600; }
+.msg p { margin: 0 0 10px; color: var(--muted); text-wrap: pretty; }
+.msg.bad h2 { color: oklch(0.80 0.10 35); }
 
-@media (max-width: 760px) { .cols { grid-template-columns: 1fr; gap: 30px; } }
-
-/* ---------- states ---------- */
-.note { margin: 44px 0; color: var(--muted); max-width: 62ch; }
-.note h2 { margin: 0 0 10px; font-size: 1rem; font-weight: 600; color: var(--ink); }
-.note p { margin: 0 0 10px; text-wrap: pretty; }
-.note code { font: 0.8125rem var(--mono); color: var(--accent); }
-.note.err { color: oklch(0.80 0.10 35); }
-
-.skel { padding: 16px 0; border-bottom: 1px solid var(--line-soft);
-        display: grid; grid-template-columns: 74px 56px 132px 1fr; gap: 18px; }
-.sk { background: var(--surface); border-radius: 5px;
-      animation: pulse 1.4s var(--ease) infinite; }
-.sk.a { height: 22px; } .sk.b { height: 14px; margin-top: 5px; }
-.sk.c { aspect-ratio: 16/10; border-radius: 6px; }
+.skel { display: grid; grid-template-columns: 62px 148px 1fr; gap: 20px;
+        padding: 18px 0; border-bottom: 1px solid var(--line-soft); }
+.sk { background: var(--surface); border-radius: 5px; animation: pulse 1.5s var(--ease) infinite; }
+.sk.a { height: 24px; } .sk.b { height: 13px; margin-top: 9px; } .sk.c { aspect-ratio: 16/10; border-radius: 7px; }
 @keyframes pulse { 50% { background: var(--surface-2); } }
 
-/* Rows are visible by default; the transition only refines an already-rendered row,
-   so a headless render or a hidden tab never ships a blank list. */
 @media (prefers-reduced-motion: no-preference) {
-  .row { animation: rise var(--base) var(--ease) both; }
-  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+  .row, .crow { animation: rise var(--base) var(--ease) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(5px); } }
 }
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 1ms !important; transition-duration: 1ms !important; }
 }
-
-@media (max-width: 720px) {
-  .row, .skel { grid-template-columns: 64px 1fr; gap: 12px; }
-  .thumb { grid-column: 1; width: 64px; }
-  .meta { grid-column: 2; }
-  .move { grid-column: 2; grid-row: 1; justify-self: end; padding-top: 0; }
-  .score { grid-column: 1; grid-row: 1; font-size: 1.125rem; }
-  .sk.c { grid-column: 1; }
+@media (max-width: 560px) {
+  button.go { flex: 1; }
+  .views { flex: 2; }
+  .views button { flex: 1; }
+}
+@media (max-width: 760px) {
+  .cols { grid-template-columns: 1fr; gap: 32px; }
+  .row, .skel { grid-template-columns: 56px 1fr; gap: 14px; }
+  .thumb, .sk.c { grid-column: 1 / -1; width: 100%; max-width: 220px; }
+  .meta { grid-column: 1 / -1; }
 }
 </style>
 </head>
 <body>
 <header>
   <div class="bar">
-    <div class="title">
-      <h1>jev-video-search</h1>
-      <span class="sub" id="corpus">&nbsp;</span>
-    </div>
+    <div class="brand"><h1>Video scene search</h1><span id="corpus"></span></div>
     <form id="f">
-      <div class="field">
-        <input type="search" id="q" name="q" autocomplete="off" autofocus
-               placeholder="a car driving through snow"
-               aria-label="Scene search query">
-      </div>
+      <input type="search" id="q" autocomplete="off" autofocus
+             placeholder="Describe a scene, e.g. a car driving through snow"
+             aria-label="Describe a scene">
       <button class="go" id="go" type="submit">Search</button>
       <div class="views" role="group" aria-label="View">
-        <button type="button" id="vRank" aria-pressed="true" disabled>Ranked</button>
-        <button type="button" id="vCmp"  aria-pressed="false" disabled>Compare</button>
+        <button type="button" id="vRes" aria-pressed="true" disabled>Results</button>
+        <button type="button" id="vCmp" aria-pressed="false" disabled>Compare</button>
       </div>
     </form>
-    <div class="readout" id="readout" hidden aria-live="polite"></div>
+    <div class="status" id="status" hidden aria-live="polite"></div>
   </div>
 </header>
 
-<main class="wrap" id="out">
-  <div class="note">
-    <h2>Search the corpus by what happens on screen.</h2>
-    <p>An embedding pulls 50 candidates, then Jev scores each one against the query and
-    re-ranks. Every row shows how far Jev moved it and why &mdash; and plays the real clip,
-    because a caption is not evidence.</p>
-  </div>
-  <div class="tries" id="tries"></div>
-</main>
+<main class="wrap" id="out"></main>
 
 <script>
-const out = document.getElementById('out');
-const form = document.getElementById('f');
-const input = document.getElementById('q');
-const go = document.getElementById('go');
-const readout = document.getElementById('readout');
-const fmt = n => n.toFixed(2);
+const out = document.getElementById('out'), form = document.getElementById('f');
+const input = document.getElementById('q'), go = document.getElementById('go');
+const statusEl = document.getElementById('status');
+const vRes = document.getElementById('vRes'), vCmp = document.getElementById('vCmp');
+const n2 = x => x.toFixed(2);
+const esc = t => t.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;');
 
-// Only load video metadata for rows actually on screen: 50 eager <video> elements
-// is 50 requests and a stalled page.
 const io = new IntersectionObserver(es => {
-  for (const e of es) {
-    if (!e.isIntersecting) continue;
-    const v = e.target;
-    if (!v.src && v.dataset.src) v.src = v.dataset.src;
-    io.unobserve(v);
-  }
-}, { rootMargin: '300px' });
+  for (const e of es) { const v = e.target;
+    if (e.isIntersecting) { if (!v.src && v.dataset.src) v.src = v.dataset.src; io.unobserve(v); } }
+}, { rootMargin: '400px' });
+const watch = el => el.querySelectorAll('video').forEach(v => io.observe(v));
 
-function skeleton() {
-  out.innerHTML = '<ol>' + Array.from({length: 6}, () => `
-    <li class="skel"><div><div class="sk a"></div><div class="sk b"></div></div>
-    <div class="sk b" style="margin-top:6px"></div><div class="sk c"></div>
-    <div><div class="sk b" style="width:30%"></div><div class="sk b" style="width:85%;margin-top:10px"></div></div></li>`).join('') + '</ol>';
-}
-
-function rowHTML(h, floor) {
-  const above = h.jev !== null && h.jev >= floor;
-  const delta = h.embRank - h.jevRank;
-  // Promotion is only meaningful for a kept row. Below the cutoff Jev ranked the best
-  // of a rejected lot, so a "promoted" badge there contradicts "below cutoff".
-  const isNew = above && h.embRank > 10;
-  const dir = delta > 0 ? `▲${delta}` : delta < 0 ? `▼${-delta}` : '—';
-  const move = `<span class="move ${above && delta > 0 ? 'up' : 'down'}">${dir}`;
-  const score = h.jev === null
-    ? `<span class="na">unscored</span>` : fmt(h.jev);
-  return `<li class="row ${above ? 'above' : 'below'}">
-    <div><div class="score">${score}</div><div class="sim">sim ${fmt(h.sim)}</div></div>
-    ${move}<span class="ranks">#${h.embRank}→#${h.jevRank}</span></span>
-    <button class="thumb" type="button" aria-label="Play ${h.video}">
-      <video muted loop playsinline preload="metadata" data-src="/video/${h.video}#t=0.5"></video>
-      <span class="play" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
-    </button>
-    <div class="meta">
-      <div class="vid">${h.video}
-        ${isNew ? '<span class="tag kept">promoted</span>' : ''}
-        ${above ? '' : '<span class="tag">below cutoff</span>'}
-      </div>
-      <p class="caption">${h.caption.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;')}</p>
-      <button class="more" type="button">full caption</button>
-    </div>
-  </li>`;
-}
-
-// Verified against this corpus, grouped by what each one demonstrates. The counts are
-// what Jev kept when measured, so a chip that reads "0 kept" is a correct rejection.
 const TRIES = [
-  ['Compositional — the relationship is the query',
-   'Embeddings treat these as a bag of concepts, so they match the nouns and miss the relation.',
-   [['a car driving through snow', '1 kept'],
-    ['a person cooking food outdoors', '5 kept'],
-    ['someone playing a musical instrument while sitting down', '8 kept'],
-    ['a person talking directly to the camera in a kitchen', '16 kept'],
-    ['a video game character shooting inside a building', ''],
-    ['a small animal being held in someone\u2019s hands', ''],
-    ['two people dancing together indoors', '']]],
-  ['Not in the corpus — watch it say no',
-   'Embeddings still return 50 results. Jev returns none, and the rejected thumbnails show why.',
-   [['a dog running on a beach', '0 kept'],
-    ['a plane flying above the clouds', '0 kept'],
-    ['someone riding a motorcycle at night', '0 kept']]],
-  ['Literal — where embeddings already do fine',
-   'One clear subject, no relation to get wrong. Expect Jev to agree and change little.',
-   [['a basketball being thrown into a hoop', ''],
-    ['a person applying makeup in front of a mirror', ''],
-    ['a man in a suit speaking at a news desk', ''],
-    ['someone pouring liquid into a glass', ''],
-    ['a crowd watching a performance on a stage', '15 kept']]],
+  ['Where the wording matters',
+   'The relationship between things is the query. Text search matches the nouns and loses the rest.',
+   ['a car driving through snow', 'a person cooking food outdoors',
+    'someone playing a musical instrument while sitting down',
+    'a person talking directly to the camera in a kitchen',
+    'a small animal being held in someone’s hands']],
+  ['Nothing like it in the library',
+   'Watch it come back empty. Text search still returns 50 clips either way.',
+   ['a dog running on a beach', 'a plane flying above the clouds',
+    'someone riding a motorcycle at night']],
+  ['Plain and simple',
+   'One clear subject, no relationship to get wrong. Both approaches should agree.',
+   ['a basketball being thrown into a hoop', 'a person applying makeup in front of a mirror',
+    'a man in a suit speaking at a news desk', 'someone pouring liquid into a glass']],
 ];
 
-function paintTries() {
-  const el = document.getElementById('tries');
-  if (!el) return;
-  el.innerHTML = TRIES.map(([h, why, qs]) => `<div class="tryGroup">
-    <h3>${h}</h3><p>${why}</p><div class="chips">` +
-    qs.map(([q, n]) => `<button class="chip" type="button" data-q="${q}">${q}${
-      n ? `<span class="n">${n}</span>` : ''}</button>`).join('') + '</div></div>').join('');
+function intro() {
+  out.innerHTML = `<div class="intro">
+    <h2>Find the moment, not the keyword.</h2>
+    <p>Search 1,000 short clips by what actually happens on screen. Every result plays,
+    so you can check it yourself rather than trust a description.</p></div>` +
+    TRIES.map(([h, why, qs]) => `<div class="group"><h3>${h}</h3><p>${why}</p>
+      <div class="chips">${qs.map(q =>
+        `<button class="chip" type="button" data-q="${q}">${q}</button>`).join('')}</div></div>`).join('');
 }
-paintTries();
+intro();
 
-let LAST = null;
-const vRank = document.getElementById('vRank'), vCmp = document.getElementById('vCmp');
+// ---- state ----------------------------------------------------------------
+let S = null, es = null, view = 'res';
+
+function rowHTML(c, hit) {
+  return `<li class="row ${hit ? 'yes' : 'no'}" data-score="${c.score ?? -1}" data-was="${c.searchRank}">
+    <div class="score">${c.score === null ? '—' : n2(c.score)}</div>
+    <button class="thumb" type="button" aria-label="Play ${c.video}">
+      <video muted loop playsinline preload="metadata" data-src="/video/${c.video}#t=0.5"></video>
+      <span class="play" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+    </button>
+    <div class="meta"><div class="name">${c.video}</div>
+      <p class="cap">${esc(c.caption)}</p>
+      ${hit ? '<div class="moved" hidden></div>' : ''}
+    </div></li>`;
+}
+
+function shell() {
+  out.innerHTML = `<div class="sec" id="secHit">
+      <h2 id="hitH">Matches</h2>
+      <p class="sub" id="hitSub">Checking each clip. Matches appear as they are found.</p>
+      <ol id="hits"></ol>
+      <div id="hitSkel"><div class="skel"><div><div class="sk a"></div></div>
+        <div class="sk c"></div><div><div class="sk b" style="width:28%"></div>
+        <div class="sk b" style="width:80%"></div></div></div></div>
+    </div><div id="tail"></div>`;
+}
+
+function addHit(c) {
+  document.getElementById('hitSkel')?.remove();
+  const ol = document.getElementById('hits');
+  const li = document.createElement('li');
+  li.innerHTML = rowHTML(c, true);
+  const el = li.firstElementChild;
+  // Insert in score order so the list stays ranked while it streams in, instead of
+  // re-rendering (which would restart any clip the user already pressed play on).
+  const after = [...ol.children].find(x => +x.dataset.score < c.score);
+  ol.insertBefore(el, after || null);
+  watch(el);
+  refreshMoved(ol);
+  document.getElementById('hitH').textContent = `Matches · ${ol.children.length}`;
+}
+
+/* Every row's position shifts as later matches stream in, so the "was #N" note has to
+   be recomputed against the current list, not against the rank at insertion time. */
+function refreshMoved(ol) {
+  [...ol.children].forEach((row, i) => {
+    const el = row.querySelector('.moved');
+    if (!el) return;
+    const was = +row.dataset.was, now = i + 1;
+    el.hidden = was <= now;
+    if (!el.hidden) el.innerHTML = `Text search ranked this <b>#${was}</b>`;
+  });
+}
+
+function finish(d) {
+  const hits = S.clips.filter(c => c.score !== null && c.score >= S.floor);
+  const miss = S.clips.filter(c => !(c.score !== null && c.score >= S.floor))
+                      .sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+  document.getElementById('hitSkel')?.remove();
+  document.getElementById('hitH').textContent = hits.length ? `Matches · ${hits.length}` : 'No matches';
+  document.getElementById('hitSub').textContent = hits.length
+    ? `${hits.length} of ${S.clips.length} clips show what you asked for.`
+    : `None of the ${S.clips.length} closest clips show what you asked for. `
+      + `Text search would have returned all ${S.clips.length} anyway.`;
+  document.getElementById('tail').innerHTML = `<details>
+    <summary>Ruled out · ${miss.length}</summary>
+    <p class="sub">Closest by wording, but not what you asked for. Play any of them to check.</p>
+    <ol id="missList"></ol></details>`;
+  const ol = document.getElementById('missList');
+  ol.innerHTML = miss.map(c => rowHTML(c, false)).join('');
+  document.querySelector('#tail details').addEventListener('toggle', function () {
+    if (this.open) watch(ol);
+  }, { once: true });
+}
+
+function showStatus(txt, pct) {
+  statusEl.hidden = false;
+  statusEl.innerHTML = (pct === null ? '' :
+    `<span class="bar-track"><span class="bar-fill" style="width:${pct}%"></span></span>`) + txt;
+}
+
+// ---- compare ---------------------------------------------------------------
+function crow(c, hit, note) {
+  return `<div class="crow ${hit ? 'hit' : ''}">
+    <div class="cs">${c.score === null ? '—' : n2(c.score)}</div>
+    <button class="cthumb" type="button" aria-label="Play ${c.video}">
+      <video muted loop playsinline preload="metadata" data-src="/video/${c.video}#t=0.5"></video>
+    </button>
+    <div><div class="cn">${c.video}</div><div class="cw">${note}</div></div></div>`;
+}
+
+function renderCompare() {
+  const d = S, hits = d.clips.filter(c => c.score !== null && c.score >= d.floor)
+                             .sort((a, b) => b.score - a.score);
+  const n = hits.length, shown = n || 10;
+  const top = [...d.clips].sort((a, b) => a.searchRank - b.searchRank).slice(0, shown);
+  const both = hits.filter(h => top.some(t => t.video === h.video)).length;
+  const emb = d.embedMs || 1, max = Math.max(emb, d.checkMs);
+  const isHit = c => c.score !== null && c.score >= d.floor;
+
+  out.innerHTML = `
+  <div class="cmpSec"><h2>Speed</h2>
+    <p class="sub">One search over ${d.corpus.toLocaleString()} clips.</p>
+    <div class="metric"><div class="who">Text search</div>
+      <div class="track"><div class="fill" style="width:${100*emb/max}%"></div></div>
+      <div class="val">${emb} ms</div></div>
+    <div class="metric hi"><div class="who">With Jev</div>
+      <div class="track"><div class="fill" style="width:${100*d.checkMs/max}%"></div></div>
+      <div class="val">${(d.checkMs/1000).toFixed(2)} s</div></div>
+    <p class="takeaway">Checking costs <b>${Math.round(d.checkMs/emb)}×</b> the plain search.
+    Results stream in as they are found, so the first match lands well before the last.</p></div>
+
+  <div class="cmpSec"><h2>What comes back</h2>
+    <p class="sub">Out of ${d.clips.length} clips looked at.</p>
+    <div class="metric"><div class="who">Text search</div>
+      <div class="track"><div class="fill" style="width:100%"></div></div>
+      <div class="val">${d.clips.length} <em>always</em></div></div>
+    <div class="metric hi"><div class="who">With Jev</div>
+      <div class="track"><div class="fill" style="width:${100*n/d.clips.length}%"></div></div>
+      <div class="val">${n} <em>${n ? `· ${d.clips.length-n} ruled out` : 'nothing matched'}</em></div></div>
+    <p class="takeaway">Text search hands back the same number every time. It has no way to
+    say <em>nothing here matches</em>, because a wording score only ranks clips against each
+    other. ${n ? '' : '<b>Here, nothing did.</b>'}</p></div>
+
+  <div class="cmpSec"><h2>Side by side</h2>
+    <p class="sub">${n ? `The ${n} Jev kept, against the top ${n} by wording alone.`
+      : `Jev returned nothing. These are the ${shown} text search would have shown.`}</p>
+    <div class="cols">
+      <div><div class="colH">With Jev<i>${n ? `${n} matches` : 'nothing'}</i></div>
+        ${n ? hits.map(c => crow(c, true, `#${c.searchRank} by wording · ${n2(c.sim)}`)).join('')
+            : '<p class="sub">No clip in the library shows this.</p>'}</div>
+      <div><div class="colH">Text search only<i>top ${shown}</i></div>
+        ${top.map(c => crow(c, isHit(c), `${n2(c.sim)} · ${isHit(c) ? 'also a match' : 'not a match'}`)).join('')}</div>
+    </div>
+    <p class="takeaway">${n
+      ? `<b>${n - both}</b> of ${n} results change when Jev checks them — ${both} clip${both===1?'':'s'} appear in both lists.`
+      : `Text search would show ${shown} clips here. None of them match.`}</p></div>`;
+  watch(out);
+}
 
 function setView(v) {
-  vRank.setAttribute('aria-pressed', v === 'rank');
+  view = v;
+  vRes.setAttribute('aria-pressed', v === 'res');
   vCmp.setAttribute('aria-pressed', v === 'cmp');
-  if (!LAST) return;
-  (v === 'cmp' ? renderCompare : renderRanked)(LAST);
+  if (!S || !S.complete) return;
+  if (v === 'cmp') renderCompare(); else { shell(); S.clips.filter(c => c.score !== null && c.score >= S.floor)
+    .sort((a,b) => b.score - a.score).forEach(addHit); finish(); }
 }
-vRank.addEventListener('click', () => setView('rank'));
-vCmp.addEventListener('click', () => setView('cmp'));
+vRes.onclick = () => setView('res');
+vCmp.onclick = () => setView('cmp');
 
-function crow(h, kept, cross) {
-  return `<div class="crow ${kept ? 'keep' : 'cut'}">
-    <div class="cs">${h.jev === null ? '—' : fmt(h.jev)}</div>
-    <button class="cthumb" type="button" aria-label="Play ${h.video}">
-      <video muted loop playsinline preload="metadata" data-src="/video/${h.video}#t=0.5"></video>
-    </button>
-    <div class="cmeta">
-      <div class="cvid">${h.video}</div>
-      <div class="cx">${cross}</div>
-      <span class="verdict ${kept ? 'keep' : 'cut'}">${kept ? 'jev keeps' : 'jev cuts'}</span>
-    </div></div>`;
-}
+// ---- search ----------------------------------------------------------------
+function search(q) {
+  if (es) es.close();
+  go.disabled = true; go.textContent = 'Searching';
+  vRes.disabled = vCmp.disabled = true;
+  S = { query: q, clips: [], floor: 0.55, complete: false };
+  showStatus('Looking through the library…', null);
+  shell();
 
-function renderCompare(d) {
-  const s = d.stats;
-  const kept = d.hits.filter(h => h.jev !== null && h.jev >= d.floor);
-  const n = kept.length;
-  // Embeddings have no cutoff, so "kept by embedding" is defined as its top-N at the
-  // SAME N Jev kept — the apples-to-apples question is what each would actually show.
-  const shown = n || 10;
-  const byEmb = [...d.hits].sort((a, b) => a.embRank - b.embRank).slice(0, shown);
-  const embTotal = s.embedMs || 1;
-  const max = Math.max(embTotal, s.jevMs);
-  const inBoth = kept.filter(h => byEmb.some(e => e.video === h.video)).length;
+  es = new EventSource('/api/stream?q=' + encodeURIComponent(q) + '&k=50');
 
-  out.innerHTML = `<div class="cmp">
-    <div class="cmpBlock">
-      <div class="cmpH">Speed <span>one search, this query</span></div>
-      <div class="metric"><div class="who">embeddings</div>
-        <div class="track"><div class="fill" style="width:${100*embTotal/max}%"></div></div>
-        <div class="val">${s.embedMs} ms</div></div>
-      <div class="metric jev"><div class="who">+ jev</div>
-        <div class="track"><div class="fill" style="width:${100*s.jevMs/max}%"></div></div>
-        <div class="val">${s.jevMs} ms <em>· ${(s.jevMs/s.candidates).toFixed(0)} ms/candidate</em></div></div>
-      <p class="cmpNote">Jev costs <b>${(s.jevMs/embTotal).toFixed(0)}×</b> the embedding path
-      (${s.jevCalls} calls, ${s.concurrency} in flight). Ranking the full
-      ${s.corpus}-scene corpus is a dot product and is not the cost here; the embedding
-      figure is almost entirely one call to Ollama for the query vector.</p>
-    </div>
+  es.addEventListener('clips', e => {
+    const d = JSON.parse(e.data);
+    Object.assign(S, { clips: d.clips.map(c => ({ ...c, score: undefined })),
+                       floor: d.floor, embedMs: d.embedMs, corpus: d.corpus });
+    showStatus(`Checking <b>0</b> of ${d.clips.length} clips`, 0);
+  });
 
-    <div class="cmpBlock">
-      <div class="cmpH">Count <span>what each is willing to return</span></div>
-      <div class="metric"><div class="who">embeddings</div>
-        <div class="track"><div class="fill" style="width:100%"></div></div>
-        <div class="val">${s.candidates} returned</div></div>
-      <div class="metric jev"><div class="who">+ jev</div>
-        <div class="track"><div class="fill" style="width:${100*n/s.candidates}%"></div></div>
-        <div class="val">${n} kept <em>· ${s.candidates-n} cut (${Math.round(100*(s.candidates-n)/s.candidates)}%)</em></div></div>
-      <p class="cmpNote">Embeddings always return k. There is no similarity at which they
-      abstain &mdash; an embedding score has no absolute meaning, only a relative one.
-      ${n ? '' : '<b>Jev kept nothing here, and that is the answer.</b>'}</p>
-    </div>
+  es.addEventListener('score', e => {
+    const d = JSON.parse(e.data), c = S.clips[d.i];
+    c.score = d.score;
+    if (d.score !== null && d.score >= S.floor && view === 'res') addHit(c);
+    showStatus(`Checking <b>${d.done}</b> of ${S.clips.length} clips`,
+               100 * d.done / S.clips.length);
+  });
 
-    <div class="cmpBlock">
-      <div class="cmpH">What each would show
-        <span>${n ? `matched at ${n}` : `jev shows none; embedding&rsquo;s top ${shown} for reference`}</span></div>
-      <div class="cols">
-        <div><div class="colH"><b>Kept by Jev</b><i>${n ? `${n} above ${fmt(d.floor)}` : 'nothing'}</i></div>
-          ${n ? kept.map(h => crow(h, true, `jev #${h.jevRank} · was emb #${h.embRank} · sim ${fmt(h.sim)}`)).join('')
-              : '<p class="cmpNote">No scene in the corpus matches this query.</p>'}</div>
-        <div><div class="colH"><b>Kept by embedding</b><i>top ${shown} by sim</i></div>
-          ${byEmb.map(h => crow(h, h.jev !== null && h.jev >= d.floor,
-             `emb #${h.embRank} · sim ${fmt(h.sim)} · jev ${h.jev === null ? '—' : fmt(h.jev)}`)).join('')}</div>
-      </div>
-      ${n ? `<p class="overlap"><b>${inBoth}/${n}</b> clips appear in both sets.
-        Swapping the embedding ranking for Jev's changes <b>${n - inBoth}</b> of the
-        ${n} results you'd actually show.</p>`
-          : `<p class="overlap">Embeddings would show ${shown} clips here. Jev shows
-        <b>none</b> — every one of those ${shown} scored below ${fmt(d.floor)}.</p>`}
-    </div>
-  </div>`;
-  out.querySelectorAll('video').forEach(v => io.observe(v));
+  es.addEventListener('done', e => {
+    const d = JSON.parse(e.data);
+    Object.assign(S, d, { complete: true });
+    S.clips.forEach(c => { if (c.score === undefined) c.score = null; });
+    es.close();
+    go.disabled = false; go.textContent = 'Search';
+    vRes.disabled = vCmp.disabled = false;
+    const nHit = S.clips.filter(c => c.score !== null && c.score >= S.floor).length;
+    showStatus(`${nHit} match${nHit === 1 ? '' : 'es'} in ${(d.totalMs/1000).toFixed(1)}s · `
+               + `${d.checked} clips checked`, null);
+    if (view === 'cmp') renderCompare(); else finish(d);
+  });
+
+  es.addEventListener('fail', e => fail(JSON.parse(e.data).error));
+  es.onerror = () => { if (es.readyState === EventSource.CLOSED && !S.complete) fail('Lost connection to the server.'); };
 }
 
-function renderRanked(d) {
-  const above = d.hits.filter(h => h.jev !== null && h.jev >= d.floor);
-  const below = d.hits.filter(h => !(h.jev !== null && h.jev >= d.floor));
-  let html = '';
-
-  if (!d.applied) {
-    html += `<div class="note err"><h2>Jev didn't answer.</h2>
-      <p>Showing the embedding ranking unchanged — the index stays authoritative when
-      the reranker is unavailable.</p></div>`;
-  } else if (!above.length) {
-    // Rejecting everything is a real answer here, not an error. Say so.
-    html += `<div class="note"><h2>Nothing cleared ${fmt(d.floor)}.</h2>
-      <p>Jev scored all ${d.stats.scored} candidates below the cutoff: it found no scene
-      matching <em>“${d.query}”</em>. An embedding alone can't tell you this — it always
-      returns its top 50, however wrong. The rejected candidates are below.</p></div>`;
-  }
-
-  if (above.length) {
-    html += `<div class="groupLabel">Jev keeps · ${above.length}</div><ol>`
-          + above.map(h => rowHTML(h, d.floor)).join('') + '</ol>';
-  }
-  if (below.length) {
-    html += `<div class="groupLabel cut">cutoff ${fmt(d.floor)} · ${below.length} rejected</div><ol>`
-          + below.map(h => rowHTML(h, d.floor)).join('') + '</ol>';
-  }
-  out.innerHTML = html;
-  out.querySelectorAll('video').forEach(v => io.observe(v));
+function fail(msg) {
+  if (es) es.close();
+  go.disabled = false; go.textContent = 'Search';
+  statusEl.hidden = true;
+  out.innerHTML = `<div class="msg bad"><h2>That search didn’t finish.</h2><p>${esc(msg)}</p></div>`;
 }
 
-function showReadout(s) {
-  readout.hidden = false;
-  readout.innerHTML =
-    `<span><b>${s.totalMs}ms</b> total</span>` +
-    `<span>embed <b>${s.embedMs}ms</b></span>` +
-    `<span class="split">jev <b>${s.jevMs}ms</b></span>` +
-    `<span><b>${s.jevCalls}</b> calls · ${s.concurrency} in flight</span>` +
-    `<span>${s.scored}/${s.candidates} scored</span>`;
-}
-
-form.addEventListener('submit', async e => {
+form.addEventListener('submit', e => {
   e.preventDefault();
   const q = input.value.trim();
-  if (!q) return;
-  go.disabled = true; go.textContent = 'Scoring…';
-  readout.hidden = true;
-  skeleton();
-  try {
-    const r = await fetch('/api/search?q=' + encodeURIComponent(q) + '&k=50');
-    const d = await r.json();
-    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
-    LAST = d;
-    vRank.disabled = vCmp.disabled = false;
-    setView(vCmp.getAttribute('aria-pressed') === 'true' ? 'cmp' : 'rank');
-    showReadout(d.stats);
-  } catch (err) {
-    out.innerHTML = `<div class="note err"><h2>Search failed.</h2><p>${err.message}</p></div>`;
-  } finally {
-    go.disabled = false; go.textContent = 'Search';
-  }
+  if (q) search(q);
 });
 
-// Click a thumb to play; clicking another stops the first so only one clip runs.
 document.addEventListener('click', e => {
   const chip = e.target.closest('.chip');
-  if (chip) { input.value = chip.dataset.q; form.requestSubmit(); }
-});
-
-out.addEventListener('click', e => {
-  const more = e.target.closest('.more');
-  if (more) {
-    const cap = more.previousElementSibling;
-    const open = cap.classList.toggle('open');
-    more.textContent = open ? 'less' : 'full caption';
-    return;
-  }
+  if (chip) { input.value = chip.dataset.q; search(chip.dataset.q); return; }
+  const cap = e.target.closest('.cap');
+  if (cap) { cap.classList.toggle('open'); return; }
   const thumb = e.target.closest('.thumb, .cthumb');
   if (!thumb) return;
   const v = thumb.querySelector('video');
   if (!v.src && v.dataset.src) v.src = v.dataset.src;
   if (v.paused) {
-    out.querySelectorAll('.thumb.playing, .cthumb.playing').forEach(t => {
-      t.classList.remove('playing'); t.querySelector('video').pause();
-    });
+    document.querySelectorAll('.playing').forEach(t => {
+      t.classList.remove('playing'); t.querySelector('video').pause(); });
     v.play().then(() => thumb.classList.add('playing')).catch(() => {});
   } else { v.pause(); thumb.classList.remove('playing'); }
 });
 
-fetch('/api/info').then(r => r.json()).then(i => {
-  document.getElementById('corpus').textContent =
-    `${i.corpus} scenes · ${i.clips} clips on disk · jev ${i.jev ? i.model : 'not configured'}`;
-}).catch(() => { document.getElementById('corpus').textContent = 'server unreachable'; });
+fetch('/api/info').then(r => r.json())
+  .then(i => { document.getElementById('corpus').textContent =
+    `${i.corpus.toLocaleString()} clips`; })
+  .catch(() => {});
 </script>
 </body>
 </html>

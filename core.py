@@ -5,7 +5,7 @@ and video "not supported (yet)"), so the vision model owns perception and Jev on
 judges the captions it produces.
 """
 import base64, json, os, subprocess, tempfile
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
 import numpy as np
@@ -128,33 +128,50 @@ DEPICTS = {
 }
 
 
-def jev_scores(query: str, captions: list[str], api_key: str | None = None,
-               model: str = JEV_MODEL) -> list[float | None]:
-    """One request per (query, caption) pair. None where Jev could not answer.
+def jev_stream(query: str, captions: list[str], api_key: str | None = None,
+               model: str = JEV_MODEL):
+    """Yield (index, score) as each answer lands, NOT in submission order.
 
-    Per-candidate rather than one packed request: irrelevant candidates act as
-    distractors for jev-1.13, and "does candidate 3..." index indirection reads
-    less reliably than a question about a named field.
+    One request per (query, caption) pair: irrelevant candidates act as distractors
+    for jev-1.13, and "does candidate 3..." index indirection reads less reliably
+    than a question about a named field.
+
+    Streaming matters for the UI. Scoring 50 clips takes ~1.4s, but the first
+    answers arrive in ~1s and a clip that clearly matches can be shown the moment
+    it is known, rather than after the slowest of 50 finishes.
     """
     from typesafe_sdk import Noul, TypeSafeClient
 
     key = api_key or jev_key()
     if not key:
-        return [None] * len(captions)
+        for i in range(len(captions)):
+            yield i, None
+        return
 
     with TypeSafeClient(api_key=key, model=model, timeout=20.0) as client:
-        def one(cap: str):
+        def one(i: int, cap: str):
             try:
                 resp = client.system_one(
                     state={"query": query[:1000], "scene": {"caption": cap[:1200]}},
                     questions={"depicts_query": Noul(**DEPICTS)},
                 )
-                return float(resp.nouls["depicts_query"].noul)
+                return i, float(resp.nouls["depicts_query"].noul)
             except Exception:
-                return None   # a candidate Jev can't score keeps its embedding rank
+                return i, None   # a clip Jev can't score keeps its text-search rank
 
         with ThreadPoolExecutor(max_workers=CONCURRENCY) as pool:
-            return list(pool.map(one, captions))
+            futures = [pool.submit(one, i, c) for i, c in enumerate(captions)]
+            for f in as_completed(futures):
+                yield f.result()
+
+
+def jev_scores(query: str, captions: list[str], api_key: str | None = None,
+               model: str = JEV_MODEL) -> list[float | None]:
+    """Blocking wrapper over jev_stream, back in submission order."""
+    out = [None] * len(captions)
+    for i, score in jev_stream(query, captions, api_key, model):
+        out[i] = score
+    return out
 
 
 # --- index -------------------------------------------------------------------

@@ -92,9 +92,55 @@ class Handler(BaseHTTPRequestHandler):
                 return self._send(502, json.dumps({"error": str(e)[:300]}).encode(),
                                   "application/json")
             return self._send(200, json.dumps(payload).encode(), "application/json")
+        if u.path == "/api/stream":
+            q = (parse_qs(u.query).get("q") or [""])[0].strip()
+            k = int((parse_qs(u.query).get("k") or ["50"])[0])
+            return self.stream_search(q, max(1, min(k, 200)))
         if u.path.startswith("/video/"):
             return self.serve_video(unquote(u.path[len("/video/"):]))
         self._send(404, b"not found", "text/plain")
+
+    def stream_search(self, query, k):
+        """Server-sent events: the clip list goes out immediately, then one event per
+        score as it lands. The UI can show a match the moment it is known instead of
+        waiting on the slowest of 50."""
+        if not query:
+            return self._send(400, b'{"error":"empty query"}', "application/json")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream; charset=utf-8")
+        self.send_header("Cache-Control", "no-cache")
+        self.send_header("Connection", "close")   # no Content-Length; we close when done
+        self.end_headers()
+
+        def emit(event, data):
+            self.wfile.write(f"event: {event}\ndata: {json.dumps(data)}\n\n".encode())
+            self.wfile.flush()
+
+        try:
+            t0 = time.perf_counter()
+            qv = core.embed([query])[0]
+            sims = VECS @ qv
+            order = np.argsort(-sims)[:k]
+            embed_ms = round((time.perf_counter() - t0) * 1000)
+            clips = [{"i": n, "video": ROWS[i]["video"], "caption": ROWS[i]["caption"],
+                      "sim": round(float(sims[i]), 4), "searchRank": n + 1}
+                     for n, i in enumerate(order)]
+            emit("clips", {"query": query, "clips": clips, "floor": core.FLOOR,
+                           "embedMs": embed_ms, "corpus": len(ROWS)})
+
+            t1 = time.perf_counter()
+            done = 0
+            for n, score in core.jev_stream(query, [c["caption"] for c in clips]):
+                done += 1
+                emit("score", {"i": n, "score": score, "done": done})
+            emit("done", {"checkMs": round((time.perf_counter() - t1) * 1000),
+                          "totalMs": round((time.perf_counter() - t0) * 1000),
+                          "embedMs": embed_ms, "checked": done, "corpus": len(ROWS)})
+        except BrokenPipeError:
+            pass                                   # user navigated away mid-search
+        except Exception as e:
+            try: emit("fail", {"error": str(e)[:300]})
+            except Exception: pass
 
     def serve_video(self, name):
         # Reject anything that isn't a bare filename: this joins onto a real directory.
