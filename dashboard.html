@@ -61,6 +61,18 @@ button.go { padding: 13px 24px; border: 0; border-radius: 9px; background: var(-
 button.go:hover:not(:disabled) { filter: brightness(1.08); }
 button.go:disabled { background: var(--surface-2); color: var(--dim); cursor: progress; }
 
+.next { display: flex; align-items: center; gap: 10px; margin-top: 13px;
+         font-size: 0.8125rem; color: var(--dim); flex-wrap: wrap; }
+.next[hidden] { display: none; }
+.next > span { font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.06em;
+               text-transform: uppercase; color: var(--muted); }
+.nextBtn { padding: 7px 13px; border-radius: 999px; cursor: pointer; text-align: left;
+  background: var(--surface); border: 1px solid var(--accent-soft); color: var(--ink);
+  font: 400 0.8125rem var(--sans);
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease); }
+.nextBtn:hover { background: var(--surface-2); border-color: var(--accent); }
+.nextBtn::after { content: " ↵"; color: var(--accent); }
+
 .status { display: flex; align-items: center; gap: 12px; margin-top: 15px; min-height: 18px;
   font-size: 0.8125rem; color: var(--dim); }
 .status[hidden] { display: none; }
@@ -199,6 +211,8 @@ details .sub { margin: 0 0 6px; font-size: 0.8125rem; color: var(--dim); }
       <button class="go" id="go" type="submit">Search</button>
     </form>
     <div class="status" id="status" hidden aria-live="polite"></div>
+    <div class="next" id="next" hidden><span>Try next</span>
+      <button class="nextBtn" id="nextBtn" type="button"></button></div>
   </div>
 </header>
 <main class="wrap" id="out"></main>
@@ -242,6 +256,34 @@ function intro(){
      `</div></div>`).join('');
 }
 intro();
+
+/* Ordered for a demo run. Comment after each: matches · where wording ranked Jev's
+   top pick · how many of the shown results change. Measured on this corpus. */
+const DECK=[
+  'a man playing guitar while sitting in a vehicle',        // 2 · #4 · 2 of 2 change
+  'two people talking inside a car',                        // 2 · #6 · 2 of 2 change
+  'a person holding a baby',                                // 6 · #6 · 4 of 6 change
+  'a dog running on a beach',                               // 0 — the correct refusal
+  'food being cooked over an open flame outdoors',          // 4 · #8
+  'a person speaking in front of a whiteboard or screen',   // 12 · #7 · 8 of 12 change
+  'someone swimming underwater',                            // 5 · #4
+  'a woman dancing alone indoors',                          // 2 · #3
+  'a car driving through snow',                             // 1 · #7
+  'someone repairing a machine with tools',                 // 4 · #3
+];
+let deck=-1;   // offerNext() pre-increments, so the first offer is DECK[0]
+const nextEl=document.getElementById('next'), nextBtn=document.getElementById('nextBtn');
+
+function offerNext(justRan){
+  // Never offer back the query just run; otherwise walk the deck in order so a
+  // recording can click the same spot over and over.
+  let guard=0;
+  do { deck=(deck+1)%DECK.length; guard++; } while(DECK[deck]===justRan && guard<DECK.length);
+  nextBtn.textContent=DECK[deck];
+  nextEl.hidden=false;
+}
+nextBtn.addEventListener('click',()=>{ const q=DECK[deck]; input.value=q; search(q); });
+offerNext(null);
 
 let S=null, es=null, raf=0;
 
@@ -403,6 +445,7 @@ function showStatus(html,pct){
 }
 
 function search(q){
+  offerNext(q);
   if(es) es.close();
   cancelAnimationFrame(raf);
   go.disabled=true; go.textContent='Searching';

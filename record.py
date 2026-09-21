@@ -13,11 +13,10 @@ URL = "http://127.0.0.1:8420"
 FRAMES = Path("/tmp/jvs-frames")
 DATA = re.compile(rb'"data":\s*"([^"]+)"')
 
-QUERIES = [
-    ("a car driving through snow",        5.0),
-    ("a person cooking food outdoors",    5.0),
-    ("a dog running on a beach",          5.5),
-]
+# The page offers the next query itself, so recording is just clicking the same
+# button. Order and per-query notes live in DECK in dashboard.html.
+ROUNDS = 4
+HOLD = 5.0
 
 
 def browse(*args, quiet=True):
@@ -56,13 +55,9 @@ def main():
     stamps, n = [], 0
     n = capture(2.0, stamps, n)                       # intro: dataset size on screen
 
-    for qi, (q, hold) in enumerate(QUERIES):
-        # Drive the form, not the chips: the chips live in the intro, which the first
-        # search replaces -- clicking them silently did nothing from query 2 onward.
-        browse("js", f'(()=>{{const i=document.getElementById("q");'
-                     f'i.value={json.dumps(q)};'
-                     f'document.getElementById("f").requestSubmit();return 1}})()')
-        n = capture(hold, stamps, n)                  # stream the matches in
+    for qi in range(ROUNDS):
+        browse("js", '(()=>{document.getElementById("nextBtn").click();return 1})()')
+        n = capture(HOLD, stamps, n)                  # stream the matches in
         browse("js", "window.scrollTo({top:300,behavior:'smooth'}); 1")
         n = capture(2.0, stamps, n)                   # pan down the two columns
         if qi == 1:                                   # prove the results are real video

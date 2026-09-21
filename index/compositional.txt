@@ -1,0 +1,540 @@
+
+==============================================================================
+Q: a person cooking food outdoors
+
+  -- embeddings
+         sim 0.731 video8654.mp4
+        a person is cooking food. a person stirring a pot of food. a spatula is used to mix cooking sauce around a pan. a stew is stirred. a woman displays a 
+         sim 0.720 video8836.mp4
+        a documentary about a culture lifestyle. a woman cooks food while a man sets up food on a table. a woman cooks outdoors. a woman cooks some food. a wo
+         sim 0.719 video7973.mp4
+        a cooked dish is spooned onto a plate. a man describes how to brown some food and cook it. a person fries balls in oil. a person is cooking. a person 
+         sim 0.715 video7140.mp4
+        a food item is preparing with a floor powder. a person is creating a baking mixture batter. a person is making a dish. a person is mixing food ingredi
+         sim 0.707 video9694.mp4
+        a man getting ready to bake potatoes. a man grilling potatoes. a man is baking potatoes on a grill. a man is baking potatoes on the grill. a man is pu
+
+  -- + jev
+    0.97 sim 0.720 video8836.mp4  PASS
+        a documentary about a culture lifestyle. a woman cooks food while a man sets up food on a table. a woman cooks outdoors. a woman cooks some food. a wo
+    0.97 sim 0.677 video7147.mp4  PASS
+        a guy adds bacon to burgers he s grilling. a man cooking food. a man cooks burgers on the grill. a man grilling burgers. a man is cooking a food. a ma
+    0.97 sim 0.635 video9333.mp4  PASS
+        a guy grilling bacon burgers. a man barbecues his cheeseburgers. a man cooking hamburgers on a grill. a man cooking pan cake. a man grilling cheese ba
+    0.93 sim 0.707 video9694.mp4  PASS
+        a man getting ready to bake potatoes. a man grilling potatoes. a man is baking potatoes on a grill. a man is baking potatoes on the grill. a man is pu
+    0.68 sim 0.648 video9227.mp4  PASS
+        a boy arranging potatoes. a man cutting and skinning potatoes. a man cutting potatos. a man is preparing food in outside park. a man is skinning potat
+
+==============================================================================
+Q: someone playing a musical instrument while sitting down
+
+  -- embeddings
+         sim 0.761 video7545.mp4
+        a guitar playing person. a man is playing a guitar. a man is playing the guitar. a man playing guitar. a man plays the guitar. a person a making music
+         sim 0.737 video9872.mp4
+        a man giving a guitar performance. a man is playing a guitar. a man playing a guitar. a man playing the guitar. a man plays a very nice song on his ac
+         sim 0.727 video8255.mp4
+        a finger pressing a button of a sound producing machine and hands playing an electronic keyboard. a man is playing the piano. a man plays the piano. a
+         sim 0.673 video7976.mp4
+        a boy in a long sleeve shirt is playing the guitar. a boy is in the library. a boy is playing a guitar. a boy is playing guitar at home. a boy is play
+         sim 0.672 video7419.mp4
+        a man in a red ball cap holds and plays a guitar while singing into a microphone. there is a man  singing a song  and playing his guitar. there is a m
+
+  -- + jev
+    0.97 sim 0.737 video9872.mp4  PASS
+        a man giving a guitar performance. a man is playing a guitar. a man playing a guitar. a man playing the guitar. a man plays a very nice song on his ac
+    0.97 sim 0.655 video9330.mp4  PASS
+        a country music video. a guy is playing a guitar on a farm. a man in a baseball hat sits on the tailgate of his truck and plays guitar. a man is playi
+    0.93 sim 0.537 video9026.mp4  PASS
+        a picture of a man sitting at a piano playing while a soldier in a green uniform listens with some text talking about the movie the pianist. a man sit
+    0.92 sim 0.644 video9228.mp4  PASS
+        a man who lived in the jungle is now trying to adapt as a regular human. a man holds and plays a guitar while riding in a van through a jungle. a man 
+    0.83 sim 0.631 video7547.mp4  PASS
+        a black-haired girl is getting ready to play the ukulele she states that the tabs came from ukehuntcom and then asks for questions and comments. a gir
+
+==============================================================================
+Q: a dog running on a beach
+
+  -- embeddings
+         sim 0.601 video7212.mp4
+        a couple is walking with their dog. a couple takes their dog for a walk on a windy day. a couple walking on a beach. a couple walking on the beach wit
+         sim 0.557 video7025.mp4
+        a boy running is running without dress. a child is running naked across the grass. a naked boy running on a beach then a picture of a man. a short cli
+         sim 0.555 video9359.mp4
+        a beach scene showing a boy and the beach waves. a boy runs across the beach. a man is discussing a recent shark bite injury to a girl. a man talking 
+         sim 0.536 video9232.mp4
+        a cartoon person runs down the hill then a cartoon dog follows them he pets and plays with the dog and then they both run back up the hill. there is a
+         sim 0.495 video9016.mp4
+        three people are running and two people are in romantic mood. two couples talking in a very romantic mood near the pool. two people seems to be in a v
+
+  -- + jev
+    0.11 sim 0.601 video7212.mp4  drop
+        a couple is walking with their dog. a couple takes their dog for a walk on a windy day. a couple walking on a beach. a couple walking on the beach wit
+    0.09 sim 0.422 video9201.mp4  drop
+        a bunch of people are going to the beach in a movie. a clip of a television show featuring people on a beach. a group of people hanging out by the bea
+    0.07 sim 0.536 video9232.mp4  drop
+        a cartoon person runs down the hill then a cartoon dog follows them he pets and plays with the dog and then they both run back up the hill. there is a
+    0.06 sim 0.392 video8312.mp4  drop
+        beautiful mountains are seen in the background of a blue river. a lake is surrounded by many tall green covered mountains. green mountain peaks surrou
+    0.05 sim 0.474 video8493.mp4  drop
+        dog is jumping into the water and struggles to get out. a polar bear is playing in the water. a bear cub is diving in to the water in order to catch a
+
+==============================================================================
+Q: a car driving through snow
+
+  -- embeddings
+         sim 0.726 video9806.mp4
+        someone drives a car at high speed down a tree lined street. a person is driving a car on the curve roads. there is someone riding a car through the f
+         sim 0.719 video9511.mp4
+        a car drives along a road. a car is driving. a car is driving down a windy row. a car is driving down an empty road. a family driving in a red car by 
+         sim 0.669 video7616.mp4
+        a car driving down the road. a car is going on the road. a car jets off down the street. a car race on the road. a car racing down a street. a car tak
+         sim 0.662 video9325.mp4
+        a  64 cadillac is being driven down a road. a car goes down a street. a class 8 truck drives down the road. a guy driving a car during sunset. a man d
+         sim 0.658 video9328.mp4
+        a car at the racetrack. a car drives along a track. a car is going very fast and sounds awesome. a car is racing around a track at a very high speed. 
+
+  -- + jev
+    0.87 sim 0.638 video9826.mp4  PASS
+        a car drives. a car of cartoon character singing. a cartoon car driving through the snow. a colorful compact car is driving to the tune of children si
+    0.08 sim 0.612 video8263.mp4  drop
+        a car is being driven. a car is driving. a guy drives a car through the street. a man is doing a review on a car while driving. a man is doing a test 
+    0.08 sim 0.585 video7597.mp4  drop
+        a boy driving the car. a man drives and reviews a car. a man is describing a car as he drives it. a man is discussing the controls in a car. a man is 
+    0.08 sim 0.528 video8468.mp4  drop
+        a car is being driven in a video game. a man is playing a video game. a man narrates a video game. a man playing video game. a man plays grand theft a
+    0.07 sim 0.525 video9355.mp4  drop
+        a anime drive a car in game. a guy narrates  a video game. a man drives a car. a man is demonstrating a video game. a man playing a car game. a person
+
+==============================================================================
+Q: a person talking directly to the camera in a kitchen
+
+  -- embeddings
+         sim 0.713 video9517.mp4
+        a bunch of people in a kitchen. a family is having coversation. a fat man showed on television. a fat man tries to open a water bottle. a man and woma
+         sim 0.701 video8325.mp4
+        a cameraman is filming a man cooking in a kitchen. a chef is being photographed. a group of people cook together. a man is cooking. a man is making fo
+         sim 0.691 video9356.mp4
+        a person is standing in front of some pots. all the ingredient for the dish has been displayed in this video where some one is cutting the vegetables.
+         sim 0.690 video8471.mp4
+        a man cooking food. a man is performing live. a woman holds a cup. a woman in a yellow dress with a cocktail in her hand talks about the republican na
+         sim 0.687 video7415.mp4
+        a woman talking to a chef about using local self-made food. a chef talking about eating healthier and eating local. a woman in black concludes her int
+
+  -- + jev
+    0.90 sim 0.686 video8690.mp4  PASS
+        a woman speaking about a fashion in a  program show. a lady is cooking a recipe and is being shown on. a women in black top is talking with a spoon in
+    0.88 sim 0.663 video8247.mp4  PASS
+        a chef gives tips on thawing food. a chef talking about thawing food. a chef talks about temperature requirements and food safety. a male chief discus
+    0.86 sim 0.672 video7563.mp4  PASS
+        a best buy employee is talking about appliances. a best buy employee is talking in a kitchen. a best buy employee talks about appliances. a best buy s
+    0.86 sim 0.617 video7566.mp4  PASS
+        a commercial for edible blooms company. a guy prepares a meal for his wife. a guy talks about buying edible blooms as gifts for his loved ones. a man 
+    0.84 sim 0.713 video9517.mp4  PASS
+        a bunch of people in a kitchen. a family is having coversation. a fat man showed on television. a fat man tries to open a water bottle. a man and woma
+
+==============================================================================
+Q: food being cut with a knife on a cutting board
+
+  -- embeddings
+         sim 0.771 video7554.mp4
+        a man cutting vegetables in kitchen. a man is cutting scallions. a man is cutting vegetables. a man is teaching about food. a person chops up a green 
+         sim 0.736 video7845.mp4
+        someone is cutting a green leafy vegetable and draining white kidney beans. someone chops a bunch of leaves and beans are taken in a bowl. woman cutti
+         sim 0.734 video8514.mp4
+        somebody cutting up vegetables placing them into boiling water and then placing it into a glass bowl. a person is chopping and cooking food on a stove
+         sim 0.715 video9356.mp4
+        a person is standing in front of some pots. all the ingredient for the dish has been displayed in this video where some one is cutting the vegetables.
+         sim 0.692 video9684.mp4
+        a person showing how to chop onion with a knife. a man cuts some fruit into pieces with  a knife. a woman in a kitchen carefully slicing the onions in
+
+  -- + jev
+    0.94 sim 0.771 video7554.mp4  PASS
+        a man cutting vegetables in kitchen. a man is cutting scallions. a man is cutting vegetables. a man is teaching about food. a person chops up a green 
+    0.93 sim 0.736 video7845.mp4  PASS
+        someone is cutting a green leafy vegetable and draining white kidney beans. someone chops a bunch of leaves and beans are taken in a bowl. woman cutti
+    0.88 sim 0.715 video9356.mp4  PASS
+        a person is standing in front of some pots. all the ingredient for the dish has been displayed in this video where some one is cutting the vegetables.
+    0.88 sim 0.692 video9684.mp4  PASS
+        a person showing how to chop onion with a knife. a man cuts some fruit into pieces with  a knife. a woman in a kitchen carefully slicing the onions in
+    0.87 sim 0.666 video7966.mp4  PASS
+        a guy slices a potato. a man cutting a potato. a man cutting the potato. a man demonstrates how to cut potatoes. a man is cutting a potato. a man is c
+
+==============================================================================
+Q: a crowd watching a performance on a stage
+
+  -- embeddings
+         sim 0.724 video7156.mp4
+        a band and singers perform. a band is performing live on stage. a band is playing and singing on stage. a band performing a song. a band plays a live 
+         sim 0.717 video9304.mp4
+        a boy is singing on a stage. a duet is performed by contestent in a  music competition. a group of individuals singing. a group of people are on stage
+         sim 0.716 video7558.mp4
+        a girl makes music using a cup on stage. a girl plays with a cup on stage. a girl uses a cup to create a song. a kid is showing some magic with the gl
+         sim 0.714 video8925.mp4
+        a band is performing a song. a band is performing on stage. a band is playing a song on stage. a band performing a song. a band performs live. a band 
+         sim 0.705 video8466.mp4
+        a band is playing a show. a band is playing for a concert. a band is playing on a stage. a band is playing on stage. a band performing to a crowd. a b
+
+  -- + jev
+    0.96 sim 0.631 video8445.mp4  PASS
+        a black comedian performs for a crowd. a comedian is performing. a comedian is telling a joke. a comedian makes jokes about the audience. a comedian p
+    0.93 sim 0.714 video8925.mp4  PASS
+        a band is performing a song. a band is performing on stage. a band is playing a song on stage. a band performing a song. a band performs live. a band 
+    0.93 sim 0.685 video7461.mp4  PASS
+        a band is performing a song. a band is performing before a massive crowd. a band is performing in front of their fans. a band is playing and singing o
+    0.91 sim 0.681 video7756.mp4  PASS
+        a female vocal group performs before an audience. a girl is singing. a group of women sing on stage. a group sings on a television show. a woman is si
+    0.85 sim 0.607 video7141.mp4  PASS
+        animated models walk down a lighted runway in front of a crowd of people. many people watching some stage show of small boy. a man in a red shirt and 
+
+==============================================================================
+Q: someone riding a motorcycle at night
+
+  -- embeddings
+         sim 0.691 video8657.mp4
+        a man dressed in black rides up to an office building on a red motorcycle. a man is arriving on his motorbike. a man is riding a motorcycle then stops
+         sim 0.663 video9813.mp4
+        a character is chasing on motorcycle in a game. a guy drives a motorcycle in a video game. a man is riding a bike in a game. a man is riding a motorcy
+         sim 0.616 video8820.mp4
+        a man riding up a hill in a dirt bike than falling off the dirt bike. a person is riding a motor bike uphill and falls. a bike appears from the cliff 
+         sim 0.579 video9809.mp4
+        a man cooking food. a man describes the benefits of riding on his sweet motorcyle. a man in racing suit standing in front of a green motorcycle speaki
+         sim 0.578 video9017.mp4
+        a man rides on a strange looking motorcycle and is pushed back by two people. the bike rider bike is pull in two men at the track on reversely. a drag
+
+  -- + jev
+    0.31 sim 0.691 video8657.mp4  drop
+        a man dressed in black rides up to an office building on a red motorcycle. a man is arriving on his motorbike. a man is riding a motorcycle then stops
+    0.20 sim 0.663 video9813.mp4  drop
+        a character is chasing on motorcycle in a game. a guy drives a motorcycle in a video game. a man is riding a bike in a game. a man is riding a motorcy
+    0.17 sim 0.541 video9832.mp4  drop
+        a bicycle is ridden down the road in a video game. a computer generated person is riding a motorbike in a computer game. a guy rides a motorcycle in a
+    0.14 sim 0.435 video8245.mp4  drop
+        a cartoon showing superheros in action. a cartoon woman is riding a motorcycle. a woman is driving a motorbike. a woman is riding a moped in a cartoon
+    0.12 sim 0.578 video9017.mp4  drop
+        a man rides on a strange looking motorcycle and is pushed back by two people. the bike rider bike is pull in two men at the track on reversely. a drag
+
+==============================================================================
+Q: a child playing with a toy on the floor
+
+  -- embeddings
+         sim 0.686 video7796.mp4
+        a boy is playing with a toy truck in the sand. a boy is playing with a toy truck on a beach. a boy is playing with toys. a boy playing in the sand wit
+         sim 0.680 video7561.mp4
+        a child is cooking with toy. a child is playing and pretending to cook. a child is playing with a toy kitchen set. a child is playing with a toy kitch
+         sim 0.656 video8332.mp4
+        a hello kitty toy is played with. a person demonstrating how to use a toy. a person is cooking. a person is playing with a toy. a person is playing wi
+         sim 0.656 video8869.mp4
+        a first person view of someone showing off block toys. a girl plays with blocks that have numbers on them. a girl plays with toys. a lady unwraps toys
+         sim 0.656 video8774.mp4
+        a man filling a toy with cotton. a man is fixing a plastic toy. a man is showing how to use a machine to stuff an animal on your own. a man puts a sto
+
+  -- + jev
+    0.89 sim 0.655 video9231.mp4  PASS
+        a little girl playing with her barbie dolls pretending one of the barbies is hurt. two young girls are playing with frozen barbies one is inspecting t
+    0.55 sim 0.563 video7542.mp4  PASS
+        a super cute little boy is dressed like a policeman and is driving a police car. a small girl looks to be alone standing and a small boy dressed in po
+    0.43 sim 0.680 video7561.mp4  drop
+        a child is cooking with toy. a child is playing and pretending to cook. a child is playing with a toy kitchen set. a child is playing with a toy kitch
+    0.32 sim 0.686 video7796.mp4  drop
+        a boy is playing with a toy truck in the sand. a boy is playing with a toy truck on a beach. a boy is playing with toys. a boy playing in the sand wit
+    0.32 sim 0.656 video8869.mp4  drop
+        a first person view of someone showing off block toys. a girl plays with blocks that have numbers on them. a girl plays with toys. a lady unwraps toys
+
+==============================================================================
+Q: a person applying makeup in front of a mirror
+
+  -- embeddings
+         sim 0.784 video7571.mp4
+        a women displaying how to apply a certain type of makeup. a woman with dark makeup is applying more. a woman is putting on makeup with a face blotter.
+         sim 0.758 video9818.mp4
+        a woman applies eye shadow to her right eye with a makeup brush. a woman doing a makeup tutorial applying eyeshadow to her eyes. music playing and a g
+         sim 0.746 video9207.mp4
+        a woman sits in front of a blue and white snowflake background and applies purple eyeshadow to her eyes with a makeup brush. a lady is put makeup espe
+         sim 0.729 video8423.mp4
+        a girl is having makeup applied particularly mascara to her eyebrows by a woman who s mostly off-screen. the makeup artist made the eyebrow colouring 
+         sim 0.725 video8320.mp4
+        a little girl putting on eyeshadow in a makeup tutorial. a young girl in a striped top applies makeup to her eyes. a girl is demonstrating how to appl
+
+  -- + jev
+    0.95 sim 0.725 video8320.mp4  PASS
+        a little girl putting on eyeshadow in a makeup tutorial. a young girl in a striped top applies makeup to her eyes. a girl is demonstrating how to appl
+    0.80 sim 0.784 video7571.mp4  PASS
+        a women displaying how to apply a certain type of makeup. a woman with dark makeup is applying more. a woman is putting on makeup with a face blotter.
+    0.67 sim 0.758 video9818.mp4  PASS
+        a woman applies eye shadow to her right eye with a makeup brush. a woman doing a makeup tutorial applying eyeshadow to her eyes. music playing and a g
+    0.66 sim 0.746 video9207.mp4  PASS
+        a woman sits in front of a blue and white snowflake background and applies purple eyeshadow to her eyes with a makeup brush. a lady is put makeup espe
+    0.61 sim 0.672 video9822.mp4  PASS
+        a girl is putting on red lipgloss. a girl is talking something. a girl performs in an ad of lipstick. a woman demonstrates how to put on a lipstick. a
+
+==============================================================================
+Q: a video game character shooting inside a building
+
+  -- embeddings
+         sim 0.814 video7757.mp4
+        there is a man attacking someone inside the building. a man giving a commentary to a first-person-shooter video game. a man is playing a video game an
+         sim 0.761 video9837.mp4
+        a boy is playing a first person shooter game and showing us how to evaid the ememy. a person is going through buildings with a gun in hand. someone is
+         sim 0.749 video8788.mp4
+        a man plays a video game where he is shooting other players. a man runs backward in an animated game then starts shooting other characters. a man is s
+         sim 0.741 video7780.mp4
+        the gun man shooting his enemies and move forward in his way. a person riding a tank shooting around at targets. here the man is explaining about the 
+         sim 0.710 video7368.mp4
+        a game is being played. a mustachioed video game character looks fiercely to his left. a player waits for his game to load. a portrait is placed befor
+
+  -- + jev
+    0.88 sim 0.814 video7757.mp4  PASS
+        there is a man attacking someone inside the building. a man giving a commentary to a first-person-shooter video game. a man is playing a video game an
+    0.84 sim 0.761 video9837.mp4  PASS
+        a boy is playing a first person shooter game and showing us how to evaid the ememy. a person is going through buildings with a gun in hand. someone is
+    0.65 sim 0.749 video8788.mp4  PASS
+        a man plays a video game where he is shooting other players. a man runs backward in an animated game then starts shooting other characters. a man is s
+    0.33 sim 0.613 video9795.mp4  drop
+        a demo of a video game. a female voice-over speaks about a video game. a game character standing. a minecraft clone is being played. a person is playi
+    0.30 sim 0.741 video7780.mp4  drop
+        the gun man shooting his enemies and move forward in his way. a person riding a tank shooting around at targets. here the man is explaining about the 
+
+==============================================================================
+Q: someone typing on a computer in an office
+
+  -- embeddings
+         sim 0.731 video7916.mp4
+        a girl is operating a computer. a girl on her lab top. a girl types on a laptop keyboard. a girl typing on a laptop. a person is typing on a keyboard 
+         sim 0.639 video9549.mp4
+        there is a user interface with full functioning options. there is a user interface with good and easy appearance. there is someone using a software to
+         sim 0.599 video7913.mp4
+        a computer screen is displaying remote connection. a guy talking a computer system. a man describing the remote connection function on a computer. a m
+         sim 0.598 video8328.mp4
+        a video showing the components of an operating system in form of a animated model and telling about its function. a man in checks shirt and wearing sp
+         sim 0.595 video7910.mp4
+        a explains the circuitry inside of a tablet computer. a man demonstrates the use of a computer motherboard and circuits. a man describing the circuit 
+
+  -- + jev
+    0.59 sim 0.731 video7916.mp4  PASS
+        a girl is operating a computer. a girl on her lab top. a girl types on a laptop keyboard. a girl typing on a laptop. a person is typing on a keyboard 
+    0.56 sim 0.527 video9236.mp4  PASS
+        there is a shirt man entering in a room. a man walks in the corridor and explains the graphics shown of the new car. a man in a green shirt explains a
+    0.54 sim 0.598 video8328.mp4  drop
+        a video showing the components of an operating system in form of a animated model and telling about its function. a man in checks shirt and wearing sp
+    0.50 sim 0.556 video9688.mp4  drop
+        a commercial for color works a black guy watching a ad  its for make up. a graphic designer doing his work on computer. a man has a picture of a woman
+    0.49 sim 0.584 video9812.mp4  drop
+        a girl edits a photo online. a guy is explaining about the options of pc application software. a lady working in the computer. a lens flare photoshop 
+
+==============================================================================
+Q: a small animal being held in someone's hands
+
+  -- embeddings
+         sim 0.731 video7201.mp4
+        a couple is shown with many pictures of their dog. a couple talk about their dog. a dog is very loved. a family talks about its dog. a guy holding a w
+         sim 0.691 video7849.mp4
+        a red-haired woman holds a green bird and says not to talk to your new bird when you first transport it home. a pale red haired lady tells us when and
+         sim 0.684 video8672.mp4
+        a baby animal is fed from a bottle. a baby animal nurses from a bottle. a dog is bottle feeding. a little baby monkey drinks from a bottle. a person b
+         sim 0.684 video9657.mp4
+        a small little critter being fed by a person on top of it s cage. a type of small mammal with a long tail is crawling around the top of a cage and tak
+         sim 0.657 video9828.mp4
+        a man is carrying a goat. a man is holding a baby goat. a slideshow of various celebraties with interesting pets. a slideshow shows celebrities and th
+
+  -- + jev
+    0.93 sim 0.731 video7201.mp4  PASS
+        a couple is shown with many pictures of their dog. a couple talk about their dog. a dog is very loved. a family talks about its dog. a guy holding a w
+    0.93 sim 0.691 video7849.mp4  PASS
+        a red-haired woman holds a green bird and says not to talk to your new bird when you first transport it home. a pale red haired lady tells us when and
+    0.92 sim 0.616 video8604.mp4  PASS
+        a cnn show about pampered dogs and their owners. a dog is eating food from a plate. a group of people have a teacup doggie tea party. a man holding a 
+    0.86 sim 0.657 video9828.mp4  PASS
+        a man is carrying a goat. a man is holding a baby goat. a slideshow of various celebraties with interesting pets. a slideshow shows celebrities and th
+    0.49 sim 0.546 video8341.mp4  drop
+        a cartoon talking to a cute bird. a clip is shown of the animated series pokemon with spanish dub. a clip taken from the cartoon pokemon. a girl is ta
+
+==============================================================================
+Q: a basketball being thrown into a hoop
+
+  -- embeddings
+         sim 0.765 video7763.mp4
+        a basketball game being played on a court. a basketball game is being played. a basketball game is playing. a basketball player doing a dunk while the
+         sim 0.756 video7710.mp4
+        a basketball player going in for a shot. a basketball player shoots a layup. a highlight from a basketball game. a highlight from a nba game with the 
+         sim 0.743 video8668.mp4
+        a basketball game being played on a court. a basketball game with a player highlighted. a basketball player appears to have been injured on the play a
+         sim 0.742 video7112.mp4
+        men outside playing basketball one of the men keeps missing the basket. a couple of guys are shooting basketballs  and they missed the basket each tim
+         sim 0.742 video8253.mp4
+        a basketball game scenes with music playing with it. a man attempts to slam dunk a basketball. a man is dribbling is basketball. a musical montage fea
+
+  -- + jev
+    0.95 sim 0.737 video9019.mp4  PASS
+        two basker ball players wearing black and white dress and play basket ball in the playing court. a man in black is throwing ball to the basket. one yo
+    0.92 sim 0.756 video7710.mp4  PASS
+        a basketball player going in for a shot. a basketball player shoots a layup. a highlight from a basketball game. a highlight from a nba game with the 
+    0.83 sim 0.742 video7112.mp4  PASS
+        men outside playing basketball one of the men keeps missing the basket. a couple of guys are shooting basketballs  and they missed the basket each tim
+    0.80 sim 0.733 video8124.mp4  PASS
+        a basketball game highlight with hip-hop music in the background. a basketball player defends a shot. a basketball player defends another player. a ba
+    0.71 sim 0.712 video9013.mp4  PASS
+        a basket players scores an easy two points. a basketball player dribbles past his opponent. a basketball player hits a fade away jumper. a couple is k
+
+==============================================================================
+Q: a man in a suit speaking at a news desk
+
+  -- embeddings
+         sim 0.785 video9690.mp4
+        there is an old man is answering to somebody questions. a man in a tan suit jacket and blue tie is making a statement to news reporters white standing
+         sim 0.760 video8908.mp4
+        a man with black suit sharing his views in front of the camera. an old man is talking about the man on the screen. a man is talking in front of a tv. 
+         sim 0.750 video7834.mp4
+        a news segmant on support services jobs growing. a person explaining a concept in a show in a news channel. the person speak in the news channel he br
+         sim 0.721 video9406.mp4
+        a person in suit is seated and talking a place is crowded by people. there is a black suit man talking inside the studio. man talks about the crucial 
+         sim 0.720 video7755.mp4
+        a boy is talking continuously and the at the end a woman s picture is shown on the background. a guy presents the news in front of a white background.
+
+  -- + jev
+    0.86 sim 0.615 video9819.mp4  PASS
+        a clip of a news reporter on abc. a man introduces a news video clip. a man is reporting on a police officer holding back teenagers. a man is reportin
+    0.86 sim 0.609 video8175.mp4  PASS
+        two news anchors sit side by side in front of a night time cityscape. a man in grey over coat is explaining something here in tv. video of a news repo
+    0.83 sim 0.647 video8864.mp4  PASS
+        a guest on a news show gives an opinion on gun control. a man is reporting news about a shooting. a man is talking about the news. a man on the news s
+    0.80 sim 0.633 video9692.mp4  PASS
+        the man is trying to get up to 500 million in the next year. a man with black suit talking about some famous companies. blackberry ceo john chen discu
+    0.74 sim 0.657 video9223.mp4  PASS
+        a men and women news reader reads the today news in american channel. a woman in blue talking with a man. there is a woman in blue is talking with sui
+
+==============================================================================
+Q: a person swimming in open water
+
+  -- embeddings
+         sim 0.772 video9830.mp4
+        a man wearing shorts is swiming in a pool using only this legs to push away the water. there is a man swimming in a pool with blue water. here the swi
+         sim 0.731 video7797.mp4
+        a man swims laps in a large indoor swimming pool. there is a man swimming in a pool. there is a swimming pool  a man is swimming. the man swim in the 
+         sim 0.653 video7152.mp4
+        water rushes over rocks into a pool below then a girl rides the water over the rocks. a woman in a bathing suit went down the waterfall. some one show
+         sim 0.623 video8949.mp4
+        a woman dives into a pool of water and removes her clothing underwater. a woman is diving into a pool while wearing a dress. a woman falls head first 
+         sim 0.599 video9574.mp4
+        man in a black wet suit surfing waves at the beach on an over cast or cloudy day. a surfer rides a small tunnel wave in the ocean. a man in a black we
+
+  -- + jev
+    0.62 sim 0.599 video7155.mp4  PASS
+        men wearing competitive swimming gear climb out of the water and climb a wall using a rope. there are some people getting above the house. there is a 
+    0.53 sim 0.535 video7795.mp4  drop
+        a person in black turning a red color wing on water. there is a man in the sea with his girlfriend. here showing the methods to turn the wing if it im
+    0.53 sim 0.484 video8794.mp4  drop
+        a beautiful young red headed mermaid swims a man plays with his dog and the mermaid sees him a blue old woman mermaid is talking to the beautiful youn
+    0.51 sim 0.653 video7152.mp4  drop
+        water rushes over rocks into a pool below then a girl rides the water over the rocks. a woman in a bathing suit went down the waterfall. some one show
+    0.50 sim 0.546 video9342.mp4  drop
+        people are floating in the ocean while a boat circles them. a man in a turquoise wetsuit climbs on to a small raft attached to a blue personal watercr
+
+==============================================================================
+Q: cartoon characters talking to each other
+
+  -- embeddings
+         sim 0.805 video7222.mp4
+        a cartoon character is looking into a camera and talking to another character. a cartoon character is popping up everywhere. a cartoon character jumps
+         sim 0.788 video7831.mp4
+        a bizarre cartoon with huge eyes is talking. a cartoon male and female fighting with an angry cartoon male. a cartoon man with green hair. a cartoon w
+         sim 0.784 video9808.mp4
+        a cartoon hero is talking to other cartoon heroes. a clip from sponge bob. a clip from the cartoon sponge bob. a scene from a kids show. a scene from 
+         sim 0.782 video9734.mp4
+        3 cartoon characters are talking. a bird is talking to a dog in a cartoon. a cartoon bird talking to dalmatian puppies. a clip showing animals talking
+         sim 0.773 video8268.mp4
+        a beard man is talking to the kid. a bearded man talks to a monkey and girl. a cartoon animation three people are talking in it. a cartoon in which a 
+
+  -- + jev
+    0.96 sim 0.784 video9808.mp4  PASS
+        a cartoon hero is talking to other cartoon heroes. a clip from sponge bob. a clip from the cartoon sponge bob. a scene from a kids show. a scene from 
+    0.95 sim 0.782 video9734.mp4  PASS
+        3 cartoon characters are talking. a bird is talking to a dog in a cartoon. a cartoon bird talking to dalmatian puppies. a clip showing animals talking
+    0.95 sim 0.722 video7029.mp4  PASS
+        a cartoon character picks up a phone. a cartoon character speaks on a phone. a cartoon squid is using the phone. animated cartoon scene spongebob. cli
+    0.95 sim 0.707 video7179.mp4  PASS
+        a cartoon about three girls. a cartoon character holds up her shoe. a family at home. a family is interacting with one another. a family of barbie ani
+    0.94 sim 0.731 video9776.mp4  PASS
+        a cartoon character cow speaks to minnie mouse. a cartoon cow is talking to a minnie mouse. a cartoon cow with a bonnet and a wand talks. a cartoon di
+
+==============================================================================
+Q: someone pouring liquid into a glass
+
+  -- embeddings
+         sim 0.740 video9699.mp4
+        a man experimenting with liquids. a man is doing an experiment. a man is doing some experiment with chemicals. a man is performing an experiment with 
+         sim 0.659 video7726.mp4
+        a girl is pouring a drink. a music video displays a man and women in different scenes together the woman headbutts the man then he takes a shot. a vid
+         sim 0.643 video8067.mp4
+        a man holds a cup. a man holds a cup filled with a white substance. a man is holding a glass full of material. a man is talking over a cup of powder. 
+         sim 0.631 video7744.mp4
+        a woman mixing various ingredients in a bowl together. a women is mixing ingredients to prepare food in kitchen. a person cooking all vegetables in sm
+         sim 0.626 video8483.mp4
+        a baking mix is stirred in a bowl while oil is added. a chef mixing ingredients in a bowl. a person is mixing ingredients for a recipe. a person mixin
+
+  -- + jev
+    0.92 sim 0.659 video7726.mp4  PASS
+        a girl is pouring a drink. a music video displays a man and women in different scenes together the woman headbutts the man then he takes a shot. a vid
+    0.85 sim 0.740 video9699.mp4  PASS
+        a man experimenting with liquids. a man is doing an experiment. a man is doing some experiment with chemicals. a man is performing an experiment with 
+    0.59 sim 0.589 video7785.mp4  PASS
+        a  person melting chocolate to double boiling method. a man is showing how to cook on a small burner. a man pours water into a cup. a person is meltin
+    0.16 sim 0.611 video8865.mp4  drop
+        cooking show demonstrating how to stir whats in the bowl. the chef in white coat whisking the ingredients and prepare it for baking. a man in a kitche
+    0.16 sim 0.576 video8685.mp4  drop
+        a couple of people recording a show in a kitchen. a man is drinking a liquid. a man is showing his fridge. a man talking about putting a tomato betwee
+
+==============================================================================
+Q: a plane flying above the clouds
+
+  -- embeddings
+         sim 0.580 video9345.mp4
+        a bunch of bees flying. a flock of birds are flying together. a flock of birds fly through sky. a flock of birds flying. a flock of yellow birds in th
+         sim 0.570 video7793.mp4
+        an airplane staff deals with mechanical issues by dumping fuel. there is a woman in black is talking with headset. there is a woman talking with a hea
+         sim 0.559 video8687.mp4
+        a busy airport is shown. a clip of an airplane and people waiting. a clock at an airport moving. a clock hand spins quickly. a clock is moving very fa
+         sim 0.555 video9774.mp4
+        a model rocket is shot into the sky trailing a white cloud of vapor. a toy rocket is launched into the sky over a forest and leaves a vapor trail. a r
+         sim 0.544 video9788.mp4
+        a girl is floating over a forest and meets a man. a girl seems to be flying in air here. a snow queen is looking in a mirror. a white haired woman fli
+
+  -- + jev
+    0.22 sim 0.559 video8687.mp4  drop
+        a busy airport is shown. a clip of an airplane and people waiting. a clock at an airport moving. a clock hand spins quickly. a clock is moving very fa
+    0.15 sim 0.497 video8450.mp4  drop
+        there is a red jacket man is talking with a man. a flight is on the skyanother two man talking on the floor. a couple of snowboards land on top of a s
+    0.14 sim 0.519 video8477.mp4  drop
+        a very nice aerial view of  a city is shown here. lots of building water is shown from a helicopter looks like a full view of the city. an aerial shot
+    0.06 sim 0.451 video9609.mp4  drop
+        two pilots were travelled in space and relieved from some dangerous incident. a man in a space ship with a helmet on. two men are in a space ship with
+    0.05 sim 0.570 video7793.mp4  drop
+        an airplane staff deals with mechanical issues by dumping fuel. there is a woman in black is talking with headset. there is a woman talking with a hea
+
+==============================================================================
+Q: two people dancing together indoors
+
+  -- embeddings
+         sim 0.780 video8807.mp4
+        a couple dances in their dining room. a couple salsa dance while music plays. a couple talks about their dancing studio. a hispanic couple dances toge
+         sim 0.687 video9802.mp4
+        a boy is standing still while a woman dances behind him. a boy standing and a girl dancing behind him to shake it off. a guy just stands there while a
+         sim 0.682 video9957.mp4
+        a dance crew practices a routine. a group of people performing a song. a guy in a gym sings takes off his shirt and picks up a surf board while people
+         sim 0.681 video7202.mp4
+        a full zumba class in action. a group of people dance for a fitness class. a group of people dance in a dance class. a group of people is dancing. a m
+         sim 0.677 video7414.mp4
+        a girl is walking on feet and legs as well. a group is dancing. a lady doing some crazy dances. a lady in a pink sweatsuit is singing and doing a danc
+
+  -- + jev
+    0.91 sim 0.780 video8807.mp4  PASS
+        a couple dances in their dining room. a couple salsa dance while music plays. a couple talks about their dancing studio. a hispanic couple dances toge
+    0.90 sim 0.655 video9801.mp4  PASS
+        there is a lady and a man hugging and crying. wizards of waverly place video showing alex s quinceniera party  she is dancing with her dad. a lady hug
+    0.86 sim 0.622 video9023.mp4  PASS
+        a compilation of scenes from watchmojo. a man and a woman are hugging each other. a man and a woman dance inside a house. a man and a woman talk to ea
+    0.68 sim 0.676 video8305.mp4  PASS
+        a clip of a music video. a man and woman are singing a song and dancing. a man and woman dance and sing in a seductive manner. a man is dancing and si
+    0.52 sim 0.672 video9254.mp4  drop
+        a band is playing music and people are dancing. a band of adult men are singing while other people are dancing in a closed room. a band plays while pe

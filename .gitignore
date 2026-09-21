@@ -1,5 +1,14 @@
 .venv/
 __pycache__/
-data/
-index/
+*.pyc
+
+# The clips themselves (2.1 GB) — fetch with ./fetch_dataset.sh
+data/clips_raw/
+data/MSRVTT_Videos.zip
+data/MSRVTT_data.json
+
+# index/ IS tracked on purpose: with it, eval.py and compare.py run with no download
+# at all. Only the dashboard needs the video files.
+
+# gstack browse daemon local state: session token, network logs, absolute paths
 .gstack/
