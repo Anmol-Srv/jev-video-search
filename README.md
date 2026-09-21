@@ -7,7 +7,8 @@ An embedding retrieves 50 candidates in ~30 ms. [Jev](https://typesafe.ai) reads
 and decides whether it really matches. The dashboard runs both side by side so you can
 watch them disagree.
 
-https://github.com/USER/REPO/assets/demo.mp4
+**[▶ Watch the 38-second demo](demo.mp4)** — four queries, ending on one the library
+cannot answer. (GitHub only plays video inline from asset URLs; the file is in the repo.)
 
 ## The point
 
