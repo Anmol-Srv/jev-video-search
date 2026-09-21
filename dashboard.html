@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jev-video-search</title>
+<style>
+/* Grading-suite neutral: the surround stays essentially untinted because video is
+   on screen, and a tinted surround biases how the footage reads. One signal color. */
+:root {
+  --bg:        oklch(0.155 0.004 250);
+  --surface:   oklch(0.196 0.005 250);
+  --surface-2: oklch(0.240 0.006 250);
+  --line:      oklch(0.305 0.008 250);
+  --line-soft: oklch(0.255 0.007 250);
+
+  --ink:   oklch(0.965 0.003 250);
+  --muted: oklch(0.742 0.007 250);
+  --dim:   oklch(0.598 0.007 250);
+
+  --accent:      oklch(0.800 0.145 142);
+  --accent-ink:  oklch(0.180 0.040 142);
+  --accent-soft: oklch(0.360 0.070 142);
+
+  --focus: oklch(0.800 0.145 142);
+
+  --z-sticky: 10;
+  --z-toast: 40;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);   /* ease-out-quart */
+  --fast: 140ms;
+  --base: 220ms;
+
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 15px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  font-synthesis-weight: none;
+}
+:where(button, input) { font: inherit; color: inherit; }
+
+/* Visible focus everywhere, never removed. */
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 3px; }
+:focus:not(:focus-visible) { outline: none; }
+
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px 96px; }
+
+/* ---------- masthead + search ---------- */
+header {
+  position: sticky; top: 0; z-index: var(--z-sticky);
+  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line-soft);
+}
+.bar { max-width: 1080px; margin: 0 auto; padding: 18px 24px 20px; }
+.title {
+  display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap;
+  margin: 0 0 14px;
+}
+.title h1 { margin: 0; font-size: 0.9375rem; font-weight: 600; letter-spacing: -0.01em; }
+.title .sub { color: var(--dim); font-size: 0.8125rem; }
+
+form { display: flex; gap: 10px; }
+.field { position: relative; flex: 1; }
+input[type=search] {
+  width: 100%; padding: 12px 14px;
+  background: var(--surface); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 8px;
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+  -webkit-appearance: none; appearance: none;
+}
+input[type=search]::-webkit-search-cancel-button { filter: invert(0.7); }
+input[type=search]::placeholder { color: var(--dim); }   /* 4.5:1 on surface */
+input[type=search]:hover { border-color: var(--surface-2); }
+input[type=search]:focus { border-color: var(--accent-soft); background: var(--surface-2); }
+
+button.go {
+  padding: 12px 20px; border-radius: 8px; border: 1px solid transparent;
+  background: var(--accent); color: var(--accent-ink);
+  font-weight: 600; cursor: pointer; white-space: nowrap;
+  transition: filter var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+button.go:hover:not(:disabled) { filter: brightness(1.08); }
+button.go:active:not(:disabled) { transform: translateY(1px); }
+button.go:disabled { background: var(--surface-2); color: var(--dim); cursor: progress; }
+
+/* ---------- readout ---------- */
+.readout {
+  display: flex; gap: 20px; flex-wrap: wrap; align-items: baseline;
+  margin-top: 14px; min-height: 19px;
+  font: 400 0.75rem/1 var(--mono); color: var(--dim);
+  font-variant-numeric: tabular-nums;
+}
+.readout b { color: var(--muted); font-weight: 500; }
+.readout .split { color: var(--accent); }
+.readout[hidden] { display: none; }
+
+/* ---------- results ---------- */
+.groupLabel {
+  display: flex; align-items: center; gap: 14px;
+  margin: 34px 0 6px;
+  font: 500 0.6875rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted);
+}
+.groupLabel::after { content: ""; flex: 1; height: 1px; background: var(--line-soft); }
+.groupLabel.cut { color: var(--dim); }
+.groupLabel.cut::after { background: repeating-linear-gradient(90deg, var(--line) 0 5px, transparent 5px 10px); }
+
+ol { list-style: none; margin: 0; padding: 0; }
+
+.row {
+  display: grid;
+  grid-template-columns: 74px 56px 132px 1fr;
+  gap: 18px; align-items: start;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line-soft);
+}
+.row:last-child { border-bottom: 0; }
+/* De-emphasis must not cost legibility: the rejected list is half the point of this
+   view, and group opacity dropped body text to 2.91:1 (measured). Dim the thumbnail
+   -- an image, no contrast floor -- and step the text down one ramp stop instead. */
+.row.below .thumb video {
+  filter: saturate(0.25) brightness(0.72);
+  transition: filter var(--base) var(--ease);
+}
+.row.below:hover .thumb video, .row.below:focus-within .thumb video { filter: none; }
+.row.below .caption { color: var(--dim); }
+
+.score { font: 500 1.375rem/1 var(--mono); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.row.above .score { color: var(--accent); }
+.row.below .score { color: var(--muted); }
+.score .na { font-size: 0.8125rem; color: var(--dim); }
+.sim { margin-top: 5px; font: 400 0.6875rem/1 var(--mono); color: var(--dim); font-variant-numeric: tabular-nums; }
+
+/* Movement is never color alone: arrow glyph + number carry it. */
+.move { font: 500 0.8125rem/1 var(--mono); font-variant-numeric: tabular-nums; padding-top: 5px; }
+.move.up { color: var(--accent); }
+.move.down, .move.flat { color: var(--dim); }
+.move .ranks { display: block; margin-top: 6px; font-size: 0.6875rem; color: var(--dim); }
+
+.thumb {
+  position: relative; width: 132px; aspect-ratio: 16/10;
+  background: var(--surface); border: 1px solid var(--line-soft);
+  border-radius: 6px; overflow: hidden; cursor: pointer;
+  padding: 0; display: block;
+  transition: border-color var(--fast) var(--ease);
+}
+.thumb:hover { border-color: var(--accent-soft); }
+.thumb video { width: 100%; height: 100%; object-fit: cover; display: block; background: #000; }
+.thumb .play {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  background: linear-gradient(to top, oklch(0 0 0 / 0.45), oklch(0 0 0 / 0.12));
+  color: oklch(1 0 0 / 0.92); transition: opacity var(--fast) var(--ease);
+  pointer-events: none;
+}
+.thumb.playing .play { opacity: 0; }
+.thumb .missing {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font: 400 0.6875rem var(--mono); color: var(--dim); text-align: center; padding: 8px;
+}
+
+.meta .vid {
+  font: 500 0.8125rem/1 var(--mono); color: var(--muted);
+  display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap;
+}
+.tag {
+  font: 500 0.625rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 3px 6px; border-radius: 3px; background: var(--surface-2);
+  color: var(--muted);   /* --dim here measured 4.12:1 on --surface-2; below the 4.5 floor */
+}
+.tag.kept { background: var(--accent-soft); color: var(--ink); }
+.caption {
+  margin: 8px 0 0; color: var(--muted); font-size: 0.875rem;
+  max-width: 68ch; text-wrap: pretty;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.caption.open { -webkit-line-clamp: unset; }
+.more {
+  margin-top: 6px; background: none; border: 0; padding: 0; cursor: pointer;
+  font: 400 0.75rem var(--mono); color: var(--dim);
+  text-decoration: underline; text-underline-offset: 3px;
+}
+.more:hover { color: var(--muted); }
+
+/* ---------- states ---------- */
+.note { margin: 44px 0; color: var(--muted); max-width: 62ch; }
+.note h2 { margin: 0 0 10px; font-size: 1rem; font-weight: 600; color: var(--ink); }
+.note p { margin: 0 0 10px; text-wrap: pretty; }
+.note code { font: 0.8125rem var(--mono); color: var(--accent); }
+.note.err { color: oklch(0.80 0.10 35); }
+
+.skel { padding: 16px 0; border-bottom: 1px solid var(--line-soft);
+        display: grid; grid-template-columns: 74px 56px 132px 1fr; gap: 18px; }
+.sk { background: var(--surface); border-radius: 5px;
+      animation: pulse 1.4s var(--ease) infinite; }
+.sk.a { height: 22px; } .sk.b { height: 14px; margin-top: 5px; }
+.sk.c { aspect-ratio: 16/10; border-radius: 6px; }
+@keyframes pulse { 50% { background: var(--surface-2); } }
+
+/* Rows are visible by default; the transition only refines an already-rendered row,
+   so a headless render or a hidden tab never ships a blank list. */
+@media (prefers-reduced-motion: no-preference) {
+  .row { animation: rise var(--base) var(--ease) both; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+}
+
+@media (max-width: 720px) {
+  .row, .skel { grid-template-columns: 64px 1fr; gap: 12px; }
+  .thumb { grid-column: 1; width: 64px; }
+  .meta { grid-column: 2; }
+  .move { grid-column: 2; grid-row: 1; justify-self: end; padding-top: 0; }
+  .score { grid-column: 1; grid-row: 1; font-size: 1.125rem; }
+  .sk.c { grid-column: 1; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="title">
+      <h1>jev-video-search</h1>
+      <span class="sub" id="corpus">&nbsp;</span>
+    </div>
+    <form id="f">
+      <div class="field">
+        <input type="search" id="q" name="q" autocomplete="off" autofocus
+               placeholder="a car driving through snow"
+               aria-label="Scene search query">
+      </div>
+      <button class="go" id="go" type="submit">Search</button>
+    </form>
+    <div class="readout" id="readout" hidden aria-live="polite"></div>
+  </div>
+</header>
+
+<main class="wrap" id="out">
+  <div class="note">
+    <h2>Search the corpus by what happens on screen.</h2>
+    <p>An embedding pulls 50 candidates, then Jev scores each one against the query and
+    re-ranks. Every row shows how far Jev moved it and why &mdash; and plays the real clip,
+    because a caption is not evidence.</p>
+    <p>Try something compositional, where the <em>relationship</em> matters:
+    <code>a person cooking food outdoors</code></p>
+  </div>
+</main>
+
+<script>
+const out = document.getElementById('out');
+const form = document.getElementById('f');
+const input = document.getElementById('q');
+const go = document.getElementById('go');
+const readout = document.getElementById('readout');
+const fmt = n => n.toFixed(2);
+
+// Only load video metadata for rows actually on screen: 50 eager <video> elements
+// is 50 requests and a stalled page.
+const io = new IntersectionObserver(es => {
+  for (const e of es) {
+    if (!e.isIntersecting) continue;
+    const v = e.target;
+    if (!v.src && v.dataset.src) v.src = v.dataset.src;
+    io.unobserve(v);
+  }
+}, { rootMargin: '300px' });
+
+function skeleton() {
+  out.innerHTML = '<ol>' + Array.from({length: 6}, () => `
+    <li class="skel"><div><div class="sk a"></div><div class="sk b"></div></div>
+    <div class="sk b" style="margin-top:6px"></div><div class="sk c"></div>
+    <div><div class="sk b" style="width:30%"></div><div class="sk b" style="width:85%;margin-top:10px"></div></div></li>`).join('') + '</ol>';
+}
+
+function rowHTML(h, floor) {
+  const above = h.jev !== null && h.jev >= floor;
+  const delta = h.embRank - h.jevRank;
+  // Promotion is only meaningful for a kept row. Below the cutoff Jev ranked the best
+  // of a rejected lot, so a "promoted" badge there contradicts "below cutoff".
+  const isNew = above && h.embRank > 10;
+  const dir = delta > 0 ? `▲${delta}` : delta < 0 ? `▼${-delta}` : '—';
+  const move = `<span class="move ${above && delta > 0 ? 'up' : 'down'}">${dir}`;
+  const score = h.jev === null
+    ? `<span class="na">unscored</span>` : fmt(h.jev);
+  return `<li class="row ${above ? 'above' : 'below'}">
+    <div><div class="score">${score}</div><div class="sim">sim ${fmt(h.sim)}</div></div>
+    ${move}<span class="ranks">#${h.embRank}→#${h.jevRank}</span></span>
+    <button class="thumb" type="button" aria-label="Play ${h.video}">
+      <video muted loop playsinline preload="metadata" data-src="/video/${h.video}#t=0.5"></video>
+      <span class="play" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span>
+    </button>
+    <div class="meta">
+      <div class="vid">${h.video}
+        ${isNew ? '<span class="tag kept">promoted</span>' : ''}
+        ${above ? '' : '<span class="tag">below cutoff</span>'}
+      </div>
+      <p class="caption">${h.caption.replace(/[<&]/g, c => c === '<' ? '&lt;' : '&amp;')}</p>
+      <button class="more" type="button">full caption</button>
+    </div>
+  </li>`;
+}
+
+function render(d) {
+  const above = d.hits.filter(h => h.jev !== null && h.jev >= d.floor);
+  const below = d.hits.filter(h => !(h.jev !== null && h.jev >= d.floor));
+  let html = '';
+
+  if (!d.applied) {
+    html += `<div class="note err"><h2>Jev didn't answer.</h2>
+      <p>Showing the embedding ranking unchanged — the index stays authoritative when
+      the reranker is unavailable.</p></div>`;
+  } else if (!above.length) {
+    // Rejecting everything is a real answer here, not an error. Say so.
+    html += `<div class="note"><h2>Nothing cleared ${fmt(d.floor)}.</h2>
+      <p>Jev scored all ${d.stats.scored} candidates below the cutoff: it found no scene
+      matching <em>“${d.query}”</em>. An embedding alone can't tell you this — it always
+      returns its top 50, however wrong. The rejected candidates are below.</p></div>`;
+  }
+
+  if (above.length) {
+    html += `<div class="groupLabel">Jev keeps · ${above.length}</div><ol>`
+          + above.map(h => rowHTML(h, d.floor)).join('') + '</ol>';
+  }
+  if (below.length) {
+    html += `<div class="groupLabel cut">cutoff ${fmt(d.floor)} · ${below.length} rejected</div><ol>`
+          + below.map(h => rowHTML(h, d.floor)).join('') + '</ol>';
+  }
+  out.innerHTML = html;
+  out.querySelectorAll('video').forEach(v => io.observe(v));
+}
+
+function showReadout(s) {
+  readout.hidden = false;
+  readout.innerHTML =
+    `<span><b>${s.totalMs}ms</b> total</span>` +
+    `<span>embed <b>${s.embedMs}ms</b></span>` +
+    `<span class="split">jev <b>${s.jevMs}ms</b></span>` +
+    `<span><b>${s.jevCalls}</b> calls · ${s.concurrency} in flight</span>` +
+    `<span>${s.scored}/${s.candidates} scored</span>`;
+}
+
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const q = input.value.trim();
+  if (!q) return;
+  go.disabled = true; go.textContent = 'Scoring…';
+  readout.hidden = true;
+  skeleton();
+  try {
+    const r = await fetch('/api/search?q=' + encodeURIComponent(q) + '&k=50');
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+    render(d); showReadout(d.stats);
+  } catch (err) {
+    out.innerHTML = `<div class="note err"><h2>Search failed.</h2><p>${err.message}</p></div>`;
+  } finally {
+    go.disabled = false; go.textContent = 'Search';
+  }
+});
+
+// Click a thumb to play; clicking another stops the first so only one clip runs.
+out.addEventListener('click', e => {
+  const more = e.target.closest('.more');
+  if (more) {
+    const cap = more.previousElementSibling;
+    const open = cap.classList.toggle('open');
+    more.textContent = open ? 'less' : 'full caption';
+    return;
+  }
+  const thumb = e.target.closest('.thumb');
+  if (!thumb) return;
+  const v = thumb.querySelector('video');
+  if (!v.src && v.dataset.src) v.src = v.dataset.src;
+  if (v.paused) {
+    out.querySelectorAll('.thumb.playing').forEach(t => {
+      t.classList.remove('playing'); t.querySelector('video').pause();
+    });
+    v.play().then(() => thumb.classList.add('playing')).catch(() => {});
+  } else { v.pause(); thumb.classList.remove('playing'); }
+});
+
+fetch('/api/info').then(r => r.json()).then(i => {
+  document.getElementById('corpus').textContent =
+    `${i.corpus} scenes · ${i.clips} clips on disk · jev ${i.jev ? i.model : 'not configured'}`;
+}).catch(() => { document.getElementById('corpus').textContent = 'server unreachable'; });
+</script>
+</body>
+</html>

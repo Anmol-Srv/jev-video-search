@@ -92,6 +92,30 @@ an **upper bound**: a real VLM caption is shorter, vaguer, and sometimes wrong. 
 lower absolute numbers end-to-end. The Jev-vs-embeddings *delta* is the transferable
 result; the absolute R@k values are not.
 
+## Dashboard
+
+```bash
+python server.py       # http://127.0.0.1:8420
+```
+
+Stdlib only, no build step, no new dependencies. Search, and every row shows what Jev
+did to the embedding ranking:
+
+- **Movement per row** (`▲40  #43→#3`). The interesting information is the delta, not
+  two lists side by side. A two-column view makes you diff 50 rows by eye.
+- **A physical cutoff line.** Everything above it Jev kept; below it, rejected. When
+  Jev rejects all 50, the view says so and explains why that's an answer an embedding
+  can't give.
+- **Every row plays the real clip.** A caption is not evidence. Rejections are checkable
+  in a glance: search "a dog running on a beach" and the rejected thumbnails are visibly
+  a couple *walking* a dog and people standing on a beach.
+- **Latency/cost readout** — total, the embed/Jev split, and the call count, so the
+  rerank's price sits next to its benefit (~3.7s for 50 calls at concurrency 6).
+
+Verified in-browser: WCAG AA on every text role (measured composited, not declared),
+keyboard reachable with a visible focus ring, no horizontal overflow at 390px, HTTP
+range requests so video seeks and Safari will play at all.
+
 ## Run
 
 ```bash
