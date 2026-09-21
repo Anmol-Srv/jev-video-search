@@ -93,8 +93,12 @@ def main():
                     # -r alone resamples the variable concat timing to constant 30fps;
                     # pairing it with -vsync vfr is contradictory and ffmpeg refuses.
                     "-i", str(concat), "-r", "30",
+                    # JPEG frames are full-range; without the explicit range convert
+                    # this lands as yuvj420p and shifts colour on some players.
+                    "-vf", "scale=in_range=full:out_range=limited,format=yuv420p",
                     "-c:v", "libx264", "-preset", "slow", "-crf", "20",
-                    "-pix_fmt", "yuv420p",          # required for Twitter/QuickTime
+                    "-profile:v", "high", "-level", "4.0",
+                    "-colorspace", "bt709", "-color_primaries", "bt709", "-color_trc", "bt709",
                     "-movflags", "+faststart", str(out)], check=True)
     print(f"{out} · {out.stat().st_size/1e6:.1f} MB")
 
