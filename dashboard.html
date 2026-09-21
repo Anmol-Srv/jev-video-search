@@ -234,7 +234,7 @@ const TRIES=[
 
 function intro(){
   out.innerHTML=`<div class="intro"><h2>Two ways to find a moment on video.</h2>
-    <p>Text search ranks 1,000 clips by wording in milliseconds and always hands back 50.
+    <p>Text search ranks <b id="dsCount">1,000</b> clips by wording in milliseconds and always hands back 50.
     Jev reads each one and decides whether it actually shows what you asked for. Watch both
     fill in, side by side, and play any clip to judge for yourself.</p></div>`+
    TRIES.map(([h,why,qs])=>`<div class="group"><h3>${h}</h3><p>${why}</p><div class="chips">`+
@@ -468,9 +468,12 @@ document.addEventListener('click',e=>{
   } else { v.pause(); t.classList.remove('playing'); }
 });
 
-fetch('/api/info').then(r=>r.json())
-  .then(i=>{document.getElementById('corpus').textContent=`${i.corpus.toLocaleString()} clips`;})
-  .catch(()=>{});
+fetch('/api/info').then(r=>r.json()).then(i=>{
+  document.getElementById('corpus').textContent =
+    `${i.corpus.toLocaleString()} clips indexed · ${i.onDisk.toLocaleString()} in the dataset`;
+  const el=document.getElementById('dsCount');
+  if(el) el.textContent=i.corpus.toLocaleString();
+}).catch(()=>{});
 </script>
 </body>
 </html>

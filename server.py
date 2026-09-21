@@ -77,9 +77,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, (ROOT / "dashboard.html").read_bytes(), "text/html; charset=utf-8")
         if u.path == "/api/info":
             have = sum(1 for r in ROWS if (VIDEO_DIR / r["video"]).is_file())
+            onDisk = sum(1 for _ in VIDEO_DIR.glob("*.mp4")) if VIDEO_DIR.is_dir() else 0
             return self._send(200, json.dumps({
-                "corpus": len(ROWS), "clips": have, "floor": core.FLOOR,
-                "jev": bool(core.jev_key()), "model": core.JEV_MODEL,
+                "corpus": len(ROWS), "clips": have, "onDisk": onDisk,
+                "floor": core.FLOOR, "jev": bool(core.jev_key()), "model": core.JEV_MODEL,
             }).encode(), "application/json")
         if u.path == "/api/search":
             q = (parse_qs(u.query).get("q") or [""])[0].strip()
