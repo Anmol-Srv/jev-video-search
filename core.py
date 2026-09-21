@@ -14,7 +14,10 @@ import requests
 OLLAMA = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
 VLM = os.environ.get("JVS_VLM", "minicpm-v4.5")
 EMBED_MODEL = os.environ.get("JVS_EMBED", "mxbai-embed-large")
-JEV_MODEL = "jev-1.13.0"          # pinned: thresholds below are calibrated to it
+JEV_MODEL = "jev-1.13.0"        # pinned: thresholds are calibrated to it
+# Shared by both judges so they see byte-identical input.
+MAX_CAPTION_CHARS = 1200
+MAX_QUERY_CHARS = 1000
 FLOOR = float(os.environ.get("JVS_FLOOR", "0.55"))
 # Measured, not guessed: single-call latency is ~960ms, so wall time is dominated by
 # how many waves the shortlist takes, not by Jev. For k=50: 6->3785ms, 16->1927,
@@ -152,7 +155,8 @@ def jev_stream(query: str, captions: list[str], api_key: str | None = None,
         def one(i: int, cap: str):
             try:
                 resp = client.system_one(
-                    state={"query": query[:1000], "scene": {"caption": cap[:1200]}},
+                    state={"query": query[:MAX_QUERY_CHARS],
+                           "scene": {"caption": cap[:MAX_CAPTION_CHARS]}},
                     questions={"depicts_query": Noul(**DEPICTS)},
                 )
                 return i, float(resp.nouls["depicts_query"].noul)
@@ -171,6 +175,45 @@ def jev_scores(query: str, captions: list[str], api_key: str | None = None,
     out = [None] * len(captions)
     for i, score in jev_stream(query, captions, api_key, model):
         out[i] = score
+    return out
+
+
+# --- Laya: the same question, judged by a local open-weights model ----------------
+
+LAYA_MODEL = os.environ.get("JVS_LAYA", "convaiinnovations/laya")
+LAYA_DEVICE = os.environ.get("JVS_LAYA_DEVICE", "mps")
+# Calibrated separately from Jev's. Laya's probabilities are compressed into a much
+# narrower band (on this corpus a query WITH matches peaks ~0.61, one with NONE peaks
+# ~0.45), so Jev's 0.55 floor is meaningless here. eval.py --calibrate picks it.
+LAYA_FLOOR = float(os.environ.get("JVS_LAYA_FLOOR", "0.50"))
+_laya = None
+
+
+def laya_agent():
+    """Loaded once, lazily: importing torch costs seconds and most runs never need it."""
+    global _laya
+    if _laya is None:
+        from laya import Agent
+        _laya = Agent(LAYA_MODEL, device=LAYA_DEVICE)
+    return _laya
+
+
+def laya_scores(query: str, captions: list[str]) -> list[float | None]:
+    """Same state and same question as Jev, so the two are judged on identical input.
+
+    Sequential: Laya batches many questions over ONE state, which is the opposite of
+    this workload (one question, many captions), and it is a local model on one GPU.
+    """
+    ag = laya_agent()
+    q = {"depicts_query": {"type": "noul", **DEPICTS}}
+    out = []
+    for cap in captions:
+        try:
+            r = ag.predict({"query": query[:MAX_QUERY_CHARS],
+                            "scene": {"caption": cap[:MAX_CAPTION_CHARS]}}, q)
+            out.append(float(r["answers"]["depicts_query"]["noul"]))
+        except Exception:
+            out.append(None)
     return out
 
 

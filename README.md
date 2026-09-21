@@ -20,10 +20,18 @@ Jev can say *nothing here matches*, and on this corpus it is right when it does.
 
 It also handles the thing embeddings structurally drop: **relationships**. "laptop
 **inside** a car" is roughly `{laptop, car}` to an embedding, so a laptop on a desk beside
-a parked car scores well. Measured on MSR-VTT, Jev's rerank is worth **+9 points at R@1**
-against a recall@50 ceiling of 91%.
+a parked car scores well.
 
-Full numbers, method, and the caveats that bound them: **[FINDINGS.md](FINDINGS.md)**.
+On refusal, measured over three answerable and three unanswerable queries, Jev keeps a
+**0.55–0.57 margin** between the worst real match and the best false alarm, on both caption
+formats tested. [Laya](https://github.com/NandhaKishorM/laya), an open-weights model with
+the same API, overlaps on one format and clears by 0.06 on the other.
+
+Reranking *quality* is a weaker story and depends on how much caption text the judge gets:
+Jev is +9 R@1 on a rich merged-caption index and −3 on a realistic short one. Do not quote
+the +9 without that qualifier.
+
+Full numbers, the three-way against Laya, and the caveats: **[FINDINGS.md](FINDINGS.md)**.
 
 ## Quickstart
 
@@ -37,6 +45,8 @@ The index is committed, so these work immediately — no download:
 
 ```bash
 python compare.py                  # speed / count / kept-vs-kept, 8 queries
+python three_way.py --index index --replay        # embeddings vs Jev vs Laya
+python three_way.py --index index-short --replay  # same, realistic caption length
 python eval.py --split msrvtt -n 100 --top-k 50    # R@1/5/10 ± Jev, recall@50
 python eval.py --sweep index/eval_scores.json      # replay thresholds, no API calls
 python test_core.py                # ranking logic, no network
@@ -59,6 +69,7 @@ python server.py                   # http://127.0.0.1:8420
 | `ingest.py` | Build the index — from video, or from MSR-VTT's human captions |
 | `eval.py` | Retrieval benchmark, cutoff sweep, compositional set |
 | `compare.py` | Terminal side-by-side: speed, count, kept-vs-kept |
+| `three_way.py` | embeddings vs Jev vs Laya: R@k, ROC AUC, fitted thresholds, speed |
 | `record.py` | Drives the dashboard and records `demo.mp4` via CDP |
 | `queries.txt` | 20 compositional queries |
 

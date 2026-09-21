@@ -13,23 +13,37 @@ So Jev is not the perception layer here. A vision model (or, below, a human) tur
 into text; an embedding retrieves cheap candidates; **Jev is the judge** that decides which
 of those actually show what was asked. Same shape as a reranker over documents.
 
-## 2. Ranking: +9 points at R@1
+## 2. Ranking: the gain is real but format-dependent
 
-MSR-VTT 1k-A, 100 queries, top-50 shortlist:
+MSR-VTT 1k-A, 100 queries, top-50 shortlist, on two index formats.
+
+**Merged captions** (all ~20 human captions per clip, median 771 chars):
 
 | | R@1 | R@5 | R@10 |
 |---|---|---|---|
 | embeddings | 49.0 | 76.0 | 81.0 |
 | **+ Jev** | **58.0** | **81.0** | **85.0** |
 
-`recall@50 = 91%` is the ceiling — Jev can only reorder what retrieval surfaced, so it
-recovered 9 of the 42 points available at R@1. Run-to-run variance is a few points at
-n=100 (two runs gave R@1 57 and 58); treat small deltas as noise.
+**Short captions** (3 captions per clip, median 136 chars — closer to what a real
+captioner emits):
 
-This was the surprise. MSR-VTT queries are literal descriptions, the case embeddings
-already handle, so the prediction was that Jev would barely move these numbers.
+| | R@1 | R@5 | R@10 |
+|---|---|---|---|
+| **embeddings** | **45.0** | **63.0** | **71.0** |
+| + Jev | 42.0 | 59.0 | 67.0 |
 
-## 3. The bigger difference is refusal, not ranking
+**An earlier version of this file reported only the +9 and called it the headline. That
+was wrong to state unqualified.** Jev's rerank helps when it has a lot of caption text to
+read and slightly hurts when it does not. The merged format is unusually rich — nobody
+ships an index of twenty concatenated human captions — so the realistic number for
+*ranking* is roughly break-even, not +9.
+
+Run-to-run variance is a few points at n=100; treat small deltas as noise. `recall@50` is
+the ceiling: 91% merged, 85% short.
+
+What survives the format change is refusal, not ranking. See §3 and §6.
+
+## 3. Refusal is the durable win
 
 Across 8 queries × 50 candidates:
 
@@ -118,7 +132,61 @@ Streaming matters for the same reason: the first answers land in ~1 s, so the UI
 match the moment it is known rather than after the slowest of fifty (3 matches on screen
 at 1.0 s, all 5 by 1.4 s).
 
-## 6. The caveat that bounds all of it
+## 6. Three-way: embeddings vs Jev vs Laya
+
+[Laya](https://github.com/NandhaKishorM/laya) is an open-weights System-1 decision model
+with the same typed-question API (`choice`/`score`/`noul`), so the identical question and
+identical shortlist go to both judges. 421M params, ModernBERT-large, run locally on MPS.
+
+`python three_way.py --index index-short -n 100`
+
+| | R@1 merged | R@1 short | AUC merged | AUC short | speed / 50 clips |
+|---|---|---|---|---|---|
+| embeddings | 49.0 | 45.0 | — | — | 25 ms |
+| + Jev | **58.0** | 42.0 | **0.908** | **0.847** | 1.4 s (network, 25 in flight) |
+| + Laya | 30.0 | 22.0 | 0.847 | 0.818 | 4.4 s / 2.9 s (local, sequential) |
+
+**Laya loses ranking on both formats.** Its AUC says it separates right from wrong
+reasonably on average, yet it wrecks the top of the list: on short captions it demotes the
+correct clip 49 times and promotes it 13, where Jev is near break-even at 26 down / 20 up.
+Average separation and top-1 precision are different things, and search only cares about
+the second.
+
+### The decisive test: can it say "nothing here matches"?
+
+Three queries the corpus can answer, three it cannot. A usable refusal threshold needs the
+worst real match to score above the best false alarm:
+
+| | worst real match | best false alarm | margin |
+|---|---|---|---|
+| Jev, merged | 0.86 | 0.31 | **+0.55** |
+| Jev, short | 0.89 | 0.32 | **+0.57** |
+| Laya, merged | 0.46 | 0.57 | **−0.11 — overlaps, no threshold works** |
+| Laya, short | 0.61 | 0.55 | +0.06 |
+
+Jev holds a wide margin on both formats. Laya's bands overlap on merged captions (a query
+with no answer scores *higher* than one with an answer) and clear by 0.06 on short ones,
+which will not survive a different corpus.
+
+This is also the one claim that is format-independent, which is why §2's ranking number
+should not be the headline and this should.
+
+### Caption form is not a neutral choice
+
+Laya is far more sensitive to it than Jev. Same two clips, same query:
+
+| clip | form | Jev | Laya |
+|---|---|---|---|
+| correct (outdoor cooking) | merged | 0.97 | 0.50 |
+| wrong (indoor pot) | merged | 0.14 | **0.49** |
+| correct | one sentence | 0.96 | 0.64 |
+| wrong | one sentence | 0.03 | 0.18 |
+
+On merged captions Laya separates correct from wrong by 0.01. It is not truncation —
+captions are median 172 tokens, max 373, inside Laya's 512 context. Benchmarking Laya only
+on the merged index would have been a rigged test, which is why both formats are reported.
+
+## 7. The caveat that bounds all of it
 
 The index is built from MSR-VTT's **human** captions, not generated ones.
 

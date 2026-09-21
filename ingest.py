@@ -27,6 +27,10 @@ def main():
     ap.add_argument("--videos", help="directory of video files")
     ap.add_argument("--from-captions", metavar="ANNOTATIONS",
                     help="MSRVTT_data.json -- index human captions instead of captioning video")
+    ap.add_argument("--max-captions", type=int, default=0, metavar="N",
+                    help="keep only the first N captions per clip (0 = all). Merging all "
+                         "20 makes a long, self-contradictory block; a real captioner "
+                         "emits 2-3 sentences, and some judges are sensitive to this.")
     ap.add_argument("--holdout", metavar="GT_JSON",
                     help="msrvtt_test_1k.json: restrict to these videos AND exclude each "
                          "video's eval caption from its indexed text (965/1000 eval queries "
@@ -111,6 +115,8 @@ def build_from_captions(args, jsonl):
                 k = c.strip().lower()
                 if k not in seen:
                     seen.add(k); uniq.append(c.strip())
+            if args.max_captions:
+                uniq = uniq[:args.max_captions]
             m = meta.get(vid, {})
             fh.write(json.dumps({
                 "video": f"{vid}.mp4", "path": "", "start": 0.0,
