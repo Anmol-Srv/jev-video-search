@@ -16,7 +16,12 @@ VLM = os.environ.get("JVS_VLM", "minicpm-v4.5")
 EMBED_MODEL = os.environ.get("JVS_EMBED", "mxbai-embed-large")
 JEV_MODEL = "jev-1.13.0"          # pinned: thresholds below are calibrated to it
 FLOOR = float(os.environ.get("JVS_FLOOR", "0.55"))
-CONCURRENCY = 6                   # Jev allows 1200 req/min; 6 in flight is plenty
+# Measured, not guessed: single-call latency is ~960ms, so wall time is dominated by
+# how many waves the shortlist takes, not by Jev. For k=50: 6->3785ms, 16->1927,
+# 25->1422, 36->1386, 50->1105 (one wave; the ~1s floor is one call's latency).
+# 25 takes the 2.7x and stops: past it returns diminish, and a 50-wide burst at ~1s
+# latency is 50 req/s against a 1200 req/min (20/s) budget, which batch eval would blow.
+CONCURRENCY = 25
 
 # The caption is the ceiling on everything downstream, so ask for the things
 # compositional queries are made of: who, what object, where, and how they relate.
