@@ -98,30 +98,27 @@ result; the absolute R@k values are not.
 python server.py       # http://127.0.0.1:8420
 ```
 
-Stdlib only, no build step, no new dependencies. Search, and every row shows what Jev
-did to the embedding ranking:
+Stdlib only, no build step. One page, built as a demo of the idea: text search and Jev
+racing on the same query, side by side.
 
-- **Movement per row** (`▲40  #43→#3`). The interesting information is the delta, not
-  two lists side by side. A two-column view makes you diff 50 rows by eye.
-- **A physical cutoff line.** Everything above it Jev kept; below it, rejected. When
-  Jev rejects all 50, the view says so and explains why that's an answer an embedding
-  can't give.
-- **Every row plays the real clip.** A caption is not evidence. Rejections are checkable
-  in a glance: search "a dog running on a beach" and the rejected thumbnails are visibly
-  a couple *walking* a dog and people standing on a beach.
-- **Compare view** (toggle in the header) — speed, count, and the two kept sets side
-  by side. "Kept by embedding" is defined as its top-N at the *same N* Jev kept, since
-  embeddings have no cutoff; the apples-to-apples question is what each would actually
-  show. Side-by-side is right here and wrong for the ranked view: matched at N=5 it's
-  two short columns, not 50 rows to diff by eye.
-- **Prompts to try**, grouped by what they demonstrate: compositional wins, queries with
-  no match in the corpus, and literal queries where embeddings already do fine.
-- **Latency/cost readout** — total, the embed/Jev split, and the call count, so the
-  rerank's price sits next to its benefit (~3.7s for 50 calls at concurrency 6).
+- **Both columns fill in lockstep.** Text search ranks all 1,000 clips in ~30ms and is
+  ready immediately. Each time Jev clears a clip, that match appears on the left and the
+  clip wording alone would have ranked in the same slot appears on the right. You watch
+  the two disagree in real time.
+- **Results stream as they qualify.** `core.jev_stream` yields answers via `as_completed`
+  over SSE, so a match is on screen the moment it is known: three by 1.0s, all five by
+  1.4s, instead of a blank wait for the slowest of fifty.
+- **The bars animate while the search runs.** Both are scaled to the projected finish
+  time, extrapolated from how many clips have been read, so the Jev bar grows toward 100%
+  while the text-search bar collapses to a sliver. Scaling against elapsed-so-far pins the
+  running bar at 100% and shows nothing.
+- **Every clip plays.** A caption is not evidence. Search "a dog running on a beach" and
+  the left column stays empty while the right shows a couple *walking* a dog and an empty
+  beach — the rejection is checkable in a glance.
 
-Verified in-browser: WCAG AA on every text role (measured composited, not declared),
-keyboard reachable with a visible focus ring, no horizontal overflow at 390px, HTTP
-range requests so video seeks and Safari will play at all.
+Verified in-browser: WCAG AA on every text role (measured composited), keyboard reachable
+with a visible focus ring, no horizontal overflow at 390/768/1280, HTTP range requests so
+video seeks and Safari plays at all.
 
 ## Run
 
