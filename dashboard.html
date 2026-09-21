@@ -120,21 +120,23 @@ button.go:disabled { background: var(--surface-2); color: var(--dim); cursor: pr
 .slot .t { aspect-ratio: 16/10; height: auto; border-radius: 6px; }
 @keyframes pulse { 50% { background: var(--surface-2); } }
 
-/* ---------- metric bars ---------- */
-.metric { display: grid; grid-template-columns: 118px 1fr 118px; gap: 16px;
-          align-items: center; padding: 9px 0; }
-.metric .who { font-size: 0.875rem; color: var(--muted); }
-.metric .mt { height: 10px; background: var(--surface); border-radius: 3px; overflow: hidden; }
-.metric .mf { display: block; height: 100%; width: 0; background: var(--surface-2);
-              border-radius: 3px; transition: width 140ms linear; }
-.metric .mf[style*="width"]:not([style*="width: 0%"]) { min-width: 4px; }
-.metric.hi .mf { background: var(--accent); }
-.metric .val { font: 500 0.875rem var(--mono); font-variant-numeric: tabular-nums;
-               text-align: right; white-space: nowrap; }
-.metric .val em { font-style: normal; color: var(--dim); }
-.metric.run .val { color: var(--accent); }
-.takeaway { margin: 14px 0 0; font-size: 0.875rem; color: var(--muted);
-            max-width: 74ch; text-wrap: pretty; min-height: 1.5em; }
+/* ---------- stat cards ---------- */
+.cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 34px; }
+.card { padding: 14px 16px 13px; background: var(--surface);
+        border: 1px solid var(--line-soft); border-radius: 10px; }
+.card h3 { margin: 0 0 9px; font: 500 0.6875rem/1 var(--mono);
+           letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.card .big { font: 500 1.375rem/1 var(--mono); font-variant-numeric: tabular-nums;
+             letter-spacing: -0.02em; color: var(--ink); }
+.card .big em { font-style: normal; font-size: 0.8125rem; color: var(--dim); margin-left: 5px; }
+.card.hi .big { color: var(--accent); }
+.card .cbar { margin-top: 11px; height: 3px; background: var(--surface-2);
+              border-radius: 2px; overflow: hidden; }
+.card .cbar i { display: block; height: 100%; width: 0; background: var(--dim);
+                border-radius: 2px; transition: width 140ms linear; }
+.card.hi .cbar i { background: var(--accent); }
+.takeaway { margin: 16px 0 0; font-size: 0.875rem; color: var(--muted);
+            max-width: 78ch; text-wrap: pretty; min-height: 1.5em; }
 .takeaway b { color: var(--accent); font-weight: 600; }
 
 details { margin-top: 46px; }
@@ -176,7 +178,7 @@ details .sub { margin: 0 0 6px; font-size: 0.8125rem; color: var(--dim); }
 }
 @media (max-width: 860px) {
   .cols, #ruledList { grid-template-columns: 1fr; gap: 34px; }
-  .metric { grid-template-columns: 96px 1fr 104px; gap: 12px; }
+  .cards { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 560px) { button.go { flex: 1; } }
 </style>
@@ -253,33 +255,29 @@ const slot=()=>`<div class="slot"><div></div><div class="t"></div><div></div></d
 
 function shell(){
   out.innerHTML=`
+  <div class="cards">
+    <div class="card"><h3>Text search</h3><div class="big" id="kSpE">—</div>
+      <div class="cbar"><i id="bSpE"></i></div></div>
+    <div class="card hi"><h3>With Jev</h3><div class="big" id="kSpJ">0 ms</div>
+      <div class="cbar"><i id="bSpJ"></i></div></div>
+    <div class="card"><h3>Clips returned</h3><div class="big" id="kCnE">—</div>
+      <div class="cbar"><i id="bCnE"></i></div></div>
+    <div class="card hi"><h3>Actually match</h3><div class="big" id="kCnJ">0</div>
+      <div class="cbar"><i id="bCnJ"></i></div></div>
+  </div>
+  <p class="takeaway" id="tk">Ranking 1,000 clips by wording, then reading each one…</p>
+
   <div class="sec"><h2>Side by side</h2>
     <p class="sub" id="sbsSub">Each clip Jev clears appears on the left. The right column
     shows what plain text search would have put in that same slot.</p>
     <div class="cols">
       <div class="col"><div class="colH live" id="hL"><span class="dot"></span>With Jev
-        <i id="hLn">checking…</i></div><ol id="jevCol"></ol>
+        <i id="hLn">reading…</i></div><ol id="jevCol"></ol>
         <div id="jevSlots">${slot()+slot()+slot()}</div></div>
       <div class="col"><div class="colH" id="hR"><span class="dot"></span>Text search only
         <i id="hRn">ready</i></div><ol id="embCol"></ol>
         <div id="embNote" class="colNote">Ranked instantly. Waiting to show the matching slots.</div></div>
     </div></div>
-
-  <div class="sec"><h2>Speed</h2>
-    <p class="sub">Same query, same 1,000 clips.</p>
-    <div class="metric"><div class="who">Text search</div>
-      <div class="mt"><i class="mf" id="spE"></i></div><div class="val" id="spEv">—</div></div>
-    <div class="metric hi run"><div class="who">With Jev</div>
-      <div class="mt"><i class="mf" id="spJ"></i></div><div class="val" id="spJv">0 ms</div></div>
-    <p class="takeaway" id="spT">Timing this search…</p></div>
-
-  <div class="sec"><h2>What comes back</h2>
-    <p class="sub">Out of the 50 closest clips by wording.</p>
-    <div class="metric"><div class="who">Text search</div>
-      <div class="mt"><i class="mf" id="cnE"></i></div><div class="val" id="cnEv">—</div></div>
-    <div class="metric hi"><div class="who">With Jev</div>
-      <div class="mt"><i class="mf" id="cnJ"></i></div><div class="val" id="cnJv">0</div></div>
-    <p class="takeaway" id="cnT">Text search hands back the same number every time.</p></div>
 
   <div id="tail"></div>`;
 }
@@ -316,8 +314,8 @@ function addMatch(c){
   }
   document.getElementById('hLn').textContent=`${n} so far`;
   document.getElementById('hRn').textContent=`top ${n}`;
-  document.getElementById('cnJv').textContent=n;
-  document.getElementById('cnJ').style.width=`${100*n/S.clips.length}%`;
+  document.getElementById('kCnJ').textContent=n;
+  document.getElementById('bCnJ').style.width=`${100*n/S.clips.length}%`;
 }
 
 /* The right column is scored after the fact, so a slot revealed early can turn out to be
@@ -339,9 +337,9 @@ function tick(){
   const el=Math.max(0,performance.now()-S.t0-(S.embedMs||0));
   const done=S.done||0, n=S.clips.length||50;
   const projected=done>2 ? Math.max(el*n/done,el) : Math.max(2000,el);
-  document.getElementById('spJ').style.width=`${Math.min(100,100*el/projected)}%`;
-  document.getElementById('spE').style.width=`${Math.max(0.6,100*(S.embedMs||1)/projected)}%`;
-  document.getElementById('spJv').textContent=ms(el);
+  document.getElementById('bSpJ').style.width=`${Math.min(100,100*el/projected)}%`;
+  document.getElementById('bSpE').style.width=`${Math.max(1.5,100*(S.embedMs||1)/projected)}%`;
+  document.getElementById('kSpJ').textContent=ms(el);
   raf=requestAnimationFrame(tick);
 }
 
@@ -370,22 +368,20 @@ function finish(d){
     : `Jev cleared none of the ${total} clips. Text search would still have handed over all ${total}.`;
 
   const e=d.embedMs||1, j=d.checkMs, max=Math.max(e,j);
-  document.getElementById('spE').style.width=`${100*e/max}%`;
-  document.getElementById('spJ').style.width='100%';
-  document.getElementById('spEv').textContent=ms(e);
-  document.getElementById('spJv').textContent=ms(j);
-  document.querySelector('.metric.run').classList.remove('run');
-  document.getElementById('spT').innerHTML=
-    `Checking cost <b>${Math.round(j/e)}×</b> the plain search — but the first match landed
-     on screen long before the last clip was read.`;
-
-  document.getElementById('cnE').style.width='100%';
-  document.getElementById('cnEv').innerHTML=`${total} <em>always</em>`;
-  document.getElementById('cnJv').innerHTML=`${n} <em>${n?`· ${total-n} out`:'· none'}</em>`;
-  document.getElementById('cnT').innerHTML=n
-    ? `Text search returns ${total} whatever you ask it. It has no way to say <em>nothing
-       here matches</em>, because a wording score only ranks clips against each other.`
-    : `Text search would still return all ${total}. <b>Not one of them matches.</b>`;
+  document.getElementById('bSpE').style.width=`${Math.max(1.5,100*e/max)}%`;
+  document.getElementById('bSpJ').style.width='100%';
+  document.getElementById('kSpE').textContent=ms(e);
+  document.getElementById('kSpJ').textContent=ms(j);
+  document.getElementById('bCnE').style.width='100%';
+  document.getElementById('kCnE').innerHTML=`${total} <em>always</em>`;
+  document.getElementById('kCnJ').innerHTML=`${n}<em>of ${total}</em>`;
+  document.getElementById('tk').innerHTML=n
+    ? `Reading the clips cost <b>${Math.round(j/e)}×</b> the plain search and ruled out
+       <b>${total-n}</b> of ${total} — but the first match was on screen in about a second.
+       Text search returns ${total} whatever you ask it; it has no way to say
+       <em>nothing here matches</em>.`
+    : `Text search returns ${total} whatever you ask it, so it hands these over too.
+       <b>Not one of them matches.</b>`;
 
   const miss=S.clips.filter(c=>!(c.score!=null&&c.score>=S.floor))
                     .sort((a,b)=>(b.score??-1)-(a.score??-1));
@@ -418,9 +414,9 @@ function search(q){
     const d=JSON.parse(e.data);
     Object.assign(S,{clips:d.clips.map(c=>({...c,score:undefined})),floor:d.floor,
                      embedMs:d.embedMs,corpus:d.corpus});
-    document.getElementById('spEv').textContent=ms(d.embedMs);
-    document.getElementById('cnEv').innerHTML=`${d.clips.length} <em>always</em>`;
-    document.getElementById('cnE').style.width='100%';
+    document.getElementById('kSpE').textContent=ms(d.embedMs);
+    document.getElementById('kCnE').innerHTML=`${d.clips.length} <em>always</em>`;
+    document.getElementById('bCnE').style.width='100%';
     document.getElementById('hRn').textContent=`ready in ${d.embedMs} ms`;
     showStatus(`Reading <b>0</b> of ${d.clips.length} clips`,0);
   });

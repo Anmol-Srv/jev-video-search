@@ -108,6 +108,8 @@ racing on the same query, side by side.
 - **Results stream as they qualify.** `core.jev_stream` yields answers via `as_completed`
   over SSE, so a match is on screen the moment it is known: three by 1.0s, all five by
   1.4s, instead of a blank wait for the slowest of fifty.
+- **Four stat cards at the top** — text-search time, Jev time, clips returned, clips that
+  actually match — with the Jev pair ticking up live while the search runs.
 - **The bars animate while the search runs.** Both are scaled to the projected finish
   time, extrapolated from how many clips have been read, so the Jev bar grows toward 100%
   while the text-search bar collapses to a sliver. Scaling against elapsed-so-far pins the
